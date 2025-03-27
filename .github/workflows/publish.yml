@@ -1,0 +1,47 @@
+# .github/workflows/npm-publish.yml
+name: Publish to NPM
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: ''
+        required: false
+        default: ''
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '22'
+          distribution: 'liberica'
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          registry-url: 'https://registry.npmjs.org'
+          
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+        
+      - name: Build with Gradle
+        run: ./gradlew build
+        
+      - name: Find package file
+        id: find-package
+        run: |
+          PACKAGE_PATH=$(find build -name "fusionpowered-api-generator-*.tgz" | head -n 1)
+          echo "package_path=$PACKAGE_PATH" >> $GITHUB_OUTPUT
+        
+      - name: Publish to NPM
+        run: npm publish ./${{ steps.find-package.outputs.package_path }} --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

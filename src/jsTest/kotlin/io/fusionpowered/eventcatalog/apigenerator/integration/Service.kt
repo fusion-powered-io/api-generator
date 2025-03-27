@@ -1,0 +1,618 @@
+package io.fusionpowered.eventcatalog.apigenerator.integration
+
+import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.model.Properties
+import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.model.ServiceProperty
+import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.plugin
+import io.fusionpowered.eventcatalog.apigenerator.application.ApiGeneratorService
+import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalog
+import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalogDir
+import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalogDirSetup
+import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalogDirTeardown
+import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.getAsyncapiExample
+import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.getOpenapiExample
+import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Badge
+import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Repository
+import io.fusionpowered.eventcatalog.apigenerator.model.catalog.ResourcePointer
+import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Service
+import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Specifications
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import kotlinx.coroutines.await
+import node.buffer.BufferEncoding.Companion.utf8
+import node.fs.existsSync
+import node.fs.readFileSync
+
+
+class Service : StringSpec({
+
+  beforeEach(catalogDirSetup)
+
+  afterEach(catalogDirTeardown)
+
+  "if a service is configured and it does not exist, it is created" {
+    //given
+    val service = ServiceProperty(
+      id = "swagger-petstore",
+      openapiPath = getOpenapiExample("petstore.yml")
+    )
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service)),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getService(service.id) shouldNotBeNull {
+      id shouldBe service.id
+      name shouldBe "Swagger Petstore"
+      version shouldBe "1.0.0"
+      summary shouldBe "This is a sample server Petstore server."
+      badges shouldContainExactly setOf(Badge("Pets", "blue", "blue"))
+    }
+  }
+
+  "if a service is configured with an openapi specification, it is written to the service " {
+    //given
+    val openapiSpecificationFile = "petstore.yml"
+    val service = ServiceProperty(
+      id = "swagger-petstore",
+      openapiPath = getOpenapiExample(openapiSpecificationFile),
+    )
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service)),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getService(service.id) shouldNotBeNull {
+      specifications.openapiPath shouldBe openapiSpecificationFile
+    }
+    existsSync("$catalogDir/services/${service.id}/$openapiSpecificationFile") shouldBe true
+  }
+
+  "if a service is configured with an openapi specification, its endpoints are written as `receives` messages to the service" {
+    //given
+    val service = ServiceProperty(
+      id = "swagger-petstore",
+      openapiPath = getOpenapiExample("petstore.yml")
+    )
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service)),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getService(service.id) shouldNotBeNull {
+      receives shouldContainExactly setOf(
+        ResourcePointer("list-pets", "5.0.0"),
+        ResourcePointer("createPets", "1.0.0"),
+        ResourcePointer("showPetById", "1.0.0"),
+        ResourcePointer("updatePet", "1.0.0"),
+        ResourcePointer("deletePet", "1.0.0"),
+        ResourcePointer("petAdopted", "1.0.0"),
+      )
+    }
+  }
+
+  "if a service is configured with an openapi specification and it already exists with `receives` messages, they are overwritten." {
+    //given
+    val service = ServiceProperty(
+      id = "swagger-petstore",
+      openapiPath = getOpenapiExample("petstore.yml")
+    )
+    catalog.writeService(
+      Service(
+        id = service.id,
+        version = "1.0.0",
+        receives = mutableListOf(
+          ResourcePointer("messageToBeOverwritten", "1.0.0")
+        )
+      )
+    )
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service)),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getService(service.id) shouldNotBeNull {
+      receives shouldContainExactly setOf(
+        ResourcePointer("list-pets", "5.0.0"),
+        ResourcePointer("createPets", "1.0.0"),
+        ResourcePointer("showPetById", "1.0.0"),
+        ResourcePointer("updatePet", "1.0.0"),
+        ResourcePointer("deletePet", "1.0.0"),
+        ResourcePointer("petAdopted", "1.0.0"),
+      )
+    }
+  }
+
+  "if a service is configured with an asyncapi specification, it is written to the service " {
+    //given
+    val asyncapiSpecificationFile = "simple.asyncapi.yml"
+    val service = ServiceProperty(
+      id = "account-service",
+      asyncapiPath = getAsyncapiExample(asyncapiSpecificationFile),
+    )
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service)),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getService(service.id) shouldNotBeNull {
+      specifications.asyncapiPath shouldBe asyncapiSpecificationFile
+    }
+    existsSync("$catalogDir/services/${service.id}/$asyncapiSpecificationFile") shouldBe true
+  }
+
+  "if a service is configured with an asyncapi specification and it already exists with an openapi specification, the asyncapi specification is added to it" {
+    //given
+    val asyncapiSpecificationFile = "simple.asyncapi.yml"
+    val service = ServiceProperty(
+      id = "account-service",
+      asyncapiPath = getAsyncapiExample("simple.asyncapi.yml")
+    )
+    val alreadyExistingService = Service(
+      id = service.id,
+      name = "Random Name",
+      version = "1.0.0",
+      specifications = Specifications(openapiPath = "simple.openapi.yml"),
+      markdown = "Here is my original markdown, please do not override this!",
+    )
+    val alreadyExistingOpenapiContent = "Some Content"
+    catalog.writeService(alreadyExistingService)
+    catalog.addFileToService(
+      id = alreadyExistingService.id,
+      filename = alreadyExistingService.specifications.openapiPath,
+      content = alreadyExistingOpenapiContent
+    )
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service)),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getService(service.id) shouldNotBeNull {
+      specifications shouldNotBeNull {
+        openapiPath shouldBe alreadyExistingService.specifications.openapiPath
+        asyncapiPath shouldBe asyncapiSpecificationFile
+        "$catalogDir/services/${service.id}/$openapiPath".let {
+          existsSync(it) shouldBe true
+          readFileSync(it, utf8) shouldBe alreadyExistingOpenapiContent
+        }
+        "$catalogDir/services/${service.id}/$asyncapiPath".let {
+          existsSync(it) shouldBe true
+        }
+      }
+    }
+  }
+
+  "if a service is configured with an asyncapi specification and it already exists with an asyncapi specification, the existing asyncapi specification is overwritten" {
+//given
+    val asyncapiSpecificationFile = "simple.asyncapi.yml"
+    val service = ServiceProperty(
+      id = "account-service",
+      asyncapiPath = getAsyncapiExample("simple.asyncapi.yml")
+    )
+    val alreadyExistingService = Service(
+      id = service.id,
+      version = "1.0.0",
+      specifications = Specifications(
+        openapiPath = "simple.openapi.yml",
+        asyncapiPath = "simple.asyncapi.yml"
+      ),
+    )
+    val alreadyExistingOpenapiContent = "Some Content"
+    val alreadyExistingAsyncapiContent = "Old Content"
+    catalog.writeService(alreadyExistingService)
+    catalog.addFileToService(
+      id = alreadyExistingService.id,
+      filename = alreadyExistingService.specifications.openapiPath,
+      content = alreadyExistingOpenapiContent
+    )
+    catalog.addFileToService(
+      id = alreadyExistingService.id,
+      filename = alreadyExistingService.specifications.asyncapiPath,
+      content = alreadyExistingAsyncapiContent
+    )
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service)),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getService(service.id) shouldNotBeNull {
+      specifications shouldNotBeNull {
+        openapiPath shouldBe alreadyExistingService.specifications.openapiPath
+        asyncapiPath shouldBe asyncapiSpecificationFile
+        "$catalogDir/services/${service.id}/$openapiPath".let {
+          existsSync(it) shouldBe true
+          readFileSync(it, utf8) shouldBe alreadyExistingOpenapiContent
+        }
+        "$catalogDir/services/${service.id}/$asyncapiPath".let {
+          existsSync(it) shouldBe true
+          readFileSync(it, utf8) shouldNotBe alreadyExistingAsyncapiContent
+        }
+      }
+    }
+  }
+
+  "if a service is configured with an asyncapi specification and it already exists with `sends` messages, they are overwritten." {
+    //given
+    val service = ServiceProperty(
+      id = "account-service",
+      asyncapiPath = getAsyncapiExample("simple.asyncapi.yml")
+    )
+    catalog.writeService(
+      Service(
+        id = service.id,
+        version = "1.0.0",
+        sends = mutableListOf(
+          ResourcePointer("messageToBeOverwritten", "1.0.0")
+        )
+      )
+    )
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service)),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getService(service.id) shouldNotBeNull {
+      sends shouldContainExactly setOf(
+        ResourcePointer("usersignedup", "1.0.0"),
+        ResourcePointer("usersignedout", "1.0.0"),
+        )
+    }
+  }
+
+  "if a service is configured with an asyncapi specification and it already exists with `receives` messages, they are overwritten." {
+    //given
+    val service = ServiceProperty(
+      id = "account-service",
+      asyncapiPath = getAsyncapiExample("simple.asyncapi.yml")
+    )
+    catalog.writeService(
+      Service(
+        id = service.id,
+        version = "1.0.0",
+        receives = mutableListOf(
+          ResourcePointer("messageToBeOverwritten", "1.0.0")
+        )
+      )
+    )
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service)),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getService(service.id) shouldNotBeNull {
+      receives shouldContainExactly setOf(
+        ResourcePointer("signupuser", "2.0.0"),
+        ResourcePointer("getuserbyemail", "1.0.0"),
+        ResourcePointer("checkemailavailability", "1.0.0"),
+        ResourcePointer("usersubscribed", "1.0.0")
+      )
+    }
+  }
+
+  "if a service is configured with an asyncapi V2 specification, its `publish` operation messages are written as `sends` messages to the service" {
+    //given
+    val service = ServiceProperty(
+      id = "account-service",
+      asyncapiPath = getAsyncapiExample("simple.asyncapi-v2.yml")
+    )
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service)),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getService(service.id) shouldNotBeNull {
+      sends shouldContainExactly setOf(
+        ResourcePointer("somecoolpublishedmessage", "1.0.0")
+      )
+    }
+  }
+
+  "if a service is configured with an asyncapi V2 specification, its `subscribe` operation messages are written as `receives` messages to the service" {
+    //given
+    val service = ServiceProperty(
+      id = "account-service",
+      asyncapiPath = getAsyncapiExample("simple.asyncapi-v2.yml")
+    )
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service)),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getService(service.id) shouldNotBeNull {
+      receives shouldContainExactly setOf(
+        ResourcePointer("somecoolreceivedmessage", "1.0.0")
+      )
+    }
+  }
+
+  "if a service is configured with an asyncapi V3 specification, its `send` operation messages are written as `sends` messages to the service" {
+    //given
+    val service = ServiceProperty(
+      id = "account-service",
+      asyncapiPath = getAsyncapiExample("simple.asyncapi.yml")
+    )
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service)),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getService(service.id) shouldNotBeNull {
+      sends shouldContainExactly setOf(
+        ResourcePointer("usersignedup", "1.0.0"),
+        ResourcePointer("usersignedout", "1.0.0"),
+      )
+    }
+  }
+
+  "if a service is configured with an asyncapi V3 specification, its `receive` operation messages are written as `sends` messages to the service" {
+    //given
+    val service = ServiceProperty(
+      id = "account-service",
+      asyncapiPath = getAsyncapiExample("simple.asyncapi.yml")
+    )
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service)),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getService(service.id) shouldNotBeNull {
+      receives shouldContainExactly setOf(
+        ResourcePointer("signupuser", "2.0.0"),
+        ResourcePointer("getuserbyemail", "1.0.0"),
+        ResourcePointer("checkemailavailability", "1.0.0"),
+        ResourcePointer("usersubscribed", "1.0.0")
+        )
+    }
+  }
+
+  "if a service is configured with an asyncapi specification with \$ref schemas, they are resolved and written to the service " {
+    //given
+    val service = ServiceProperty(
+      id = "test-service",
+      asyncapiPath = getAsyncapiExample("ref-example.asyncapi.yml"),
+    )
+    val refMessageInAsyncapiFile = "usersignup"
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service)),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getService(service.id) shouldNotBe null
+    catalog.getMessage(refMessageInAsyncapiFile) shouldNotBeNull {
+      schemaPath shouldBe "schema.json"
+    }
+  }
+
+  "if a service in configured with an asyncapi specification as a JSON file, it is written to the service " {
+    //given
+    val service = ServiceProperty(
+      id = "user-service",
+      asyncapiPath = getAsyncapiExample("example-as-json.json")
+    )
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service)),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getService(service.id) shouldNotBeNull {
+      name shouldBe "User Service"
+      version shouldBe "1.0.0"
+      summary shouldBe "CRUD based API to handle User interactions for users of Kitchenshelf app."
+    }
+  }
+
+  "if a service is configured with a URL as the specification path, the specification file is downloaded and written to the service" {
+    //given
+    val openapiSpecificationFile = "petstore.yml"
+    val service = ServiceProperty(
+      id = "swagger-petstore",
+      openapiPath = "https://raw.githubusercontent.com/fusion-powered-io/api-generator/refs/heads/main/src/jsTest/resources/openapi/$openapiSpecificationFile",
+    )
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service)),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getService(service.id) shouldNotBeNull {
+      specifications.openapiPath shouldBe openapiSpecificationFile
+    }
+    existsSync("$catalogDir/services/${service.id}/$openapiSpecificationFile") shouldBe true
+  }
+
+  "if a service is configured and it already exists with a different version, a new service is created and the old one is versioned" {
+    //given
+    val service = ServiceProperty(
+      id = "account-service",
+      asyncapiPath = getAsyncapiExample("simple.asyncapi.yml")
+    )
+    val versionInAsyncapiFile = "1.0.0"
+    val versionOfExistingService = "0.0.1"
+    catalog.writeService(
+      Service(
+        id = service.id,
+        version = versionOfExistingService
+      )
+    )
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service)),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getService(service.id, versionOfExistingService) shouldNotBe null
+    catalog.getService(service.id, versionInAsyncapiFile) shouldNotBe null
+  }
+
+  "if a service is configured and its version already exists, only metadata is updated" {
+    //given
+    val service = ServiceProperty(
+      id = "account-service",
+      asyncapiPath = getAsyncapiExample("simple.asyncapi.yml")
+    )
+    val versionInAsyncapiFile = "1.0.0"
+    catalog.writeService(
+      Service(
+        id = service.id,
+        name = "Random Name",
+        version = versionInAsyncapiFile
+      )
+    )
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service)),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getService(service.id) shouldNotBeNull {
+      id shouldBe service.id
+      name shouldBe "Account Service"
+      version shouldBe versionInAsyncapiFile
+      summary shouldBe "This service is in charge of processing user signups"
+      badges shouldContainExactly setOf(
+        Badge("Events", "blue", "blue"),
+        Badge("Authentication", "blue", "blue")
+      )
+    }
+  }
+
+  "if a service is configured and its version already exists, owners, repository and markdown are persisted" {
+    //given
+    val service = ServiceProperty(
+      id = "swagger-petstore-2",
+      openapiPath = getOpenapiExample("petstore.yml")
+    )
+    val versionInOpenapiFile = "1.0.0"
+    val alreadyExistingService = Service(
+      id = service.id,
+      name = "Random Name",
+      version = versionInOpenapiFile,
+      owners = setOf("jbrandao"),
+      repository = Repository("kotlin", "https://random.url"),
+      markdown = "Here is my original markdown, please do not override this!"
+    )
+    catalog.writeService(alreadyExistingService)
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service)),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getService(service.id) shouldNotBeNull {
+      id shouldBe service.id
+      name shouldBe "Swagger Petstore"
+      version shouldBe versionInOpenapiFile
+      summary shouldBe "This is a sample server Petstore server."
+      markdown shouldBe alreadyExistingService.markdown
+      owners shouldContainAll alreadyExistingService.owners
+      repository shouldBe alreadyExistingService.repository
+      badges shouldContainExactly setOf(Badge("Pets", "blue", "blue"))
+    }
+  }
+
+  "if a service is configured and its version already exists, the openapi `sends` messages are persisted" {
+    //given
+    val service = ServiceProperty(
+      id = "swagger-petstore",
+      openapiPath = getOpenapiExample("petstore.yml")
+    )
+    val alreadyExistingService = Service(
+      id = service.id,
+      name = "Swagger Petstore",
+      version = "1.0.0",
+      sends = mutableListOf(ResourcePointer("usersignedup", "1.0.0")),
+    )
+    catalog.writeService(alreadyExistingService)
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service)),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getService(service.id) shouldNotBeNull {
+      sends shouldContainExactly setOf(
+        ResourcePointer("usersignedup", "1.0.0"),
+        ResourcePointer("petVaccinated", "1.0.0"),
+      )
+    }
+  }
+
+  "if a service is configured with owners, they are added to the service" {
+    //given
+    val service = ServiceProperty(
+      id = "account-service",
+      asyncapiPath = getAsyncapiExample("simple.asyncapi.yml"),
+      owners = arrayOf("John Doe", "Jane Doe")
+    )
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service)),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getService(service.id) shouldNotBeNull {
+      owners shouldBe setOf("John Doe", "Jane Doe")
+    }
+  }
+
+})

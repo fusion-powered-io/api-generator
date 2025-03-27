@@ -1,0 +1,25 @@
+[versions]
+kotlin = "2.1.20"
+kotlinx-coroutines = "1.10.1"
+kotlinx-serialization-json = "1.8.1"
+kotlin-nodejs = "2025.4.16-22.13.10"
+kotlin-web = "2025.4.16"
+kotest = "6.0.0.M3"
+
+[libraries]
+kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
+kotlin-wrapper-nodejs = { module = "org.jetbrains.kotlin-wrappers:kotlin-node-js", version.ref = "kotlin-nodejs" }
+kotlin-wrapper-web = { module = "org.jetbrains.kotlin-wrappers:kotlin-web", version.ref = "kotlin-web" }
+kotest-framework-engine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
+kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+
+[bundles]
+kotlinx = ["kotlinx-coroutines", "kotlinx-serialization-json"]
+kotlin-wrapper = ["kotlin-wrapper-nodejs", "kotlin-wrapper-web"]
+kotest = ["kotest-framework-engine", "kotest-assertions-core"]
+
+[plugins]
+kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotest = { id = "io.kotest.multiplatform", version.ref = "kotest" }
