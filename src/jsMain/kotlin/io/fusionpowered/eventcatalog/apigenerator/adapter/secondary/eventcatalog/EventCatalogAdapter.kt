@@ -91,7 +91,7 @@ class EventCatalogAdapter(
       when (type) {
         Event -> sdk.writeEventToService(message.toSdkMessage(), SdkResourcePointer(service.id, "latest"), WriteOptions(override = true)).await()
         Command -> sdk.writeCommandToService(message.toSdkMessage(), SdkResourcePointer(service.id, "latest"), WriteOptions(override = true)).await()
-        Query -> sdk.writeQueryToService(message.toSdkMessage(), SdkResourcePointer(service.id, "latest"), WriteOptions(override = true)).await()
+        Query -> sdk.writeQueryToService(message.toSdkQuery(), SdkResourcePointer(service.id, "latest"), WriteOptions(override = true)).await()
       }
     }
   }

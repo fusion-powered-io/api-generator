@@ -13,7 +13,7 @@ val libraryName = "@fusionpowered/$name"
 kotlin {
   js {
     outputModuleName = libraryName
-    version = "1.0.0"
+    version = "1.0.1"
     nodejs {
       val main by compilations.getting {
         packageJson {

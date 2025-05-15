@@ -40,7 +40,7 @@ external interface Sdk {
 
   fun versionQuery(id: String): Promise<Unit>
 
-  fun writeQueryToService(query: SdkMessage, service: SdkResourcePointer, options: WriteOptions): Promise<Unit>
+  fun writeQueryToService(query: SdkQuery, service: SdkResourcePointer, options: WriteOptions): Promise<Unit>
 
   fun addFileToQuery(id: String, file: SdkFile, version: String?): Promise<Unit>
 
