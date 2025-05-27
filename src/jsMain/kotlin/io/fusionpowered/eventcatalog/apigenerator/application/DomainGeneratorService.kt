@@ -31,6 +31,7 @@ class DomainGeneratorService(
                 summary = latestDomain.summary,
                 services = (domain.services + latestDomain.services).toMutableList(),
                 owners = domain.owners + latestDomain.owners,
+                entities = domain.entities + latestDomain.entities,
                 markdown = latestDomain.markdown
               )
               .apply {
@@ -46,6 +47,7 @@ class DomainGeneratorService(
                 summary = latestDomain.summary,
                 services = (domain.services + latestDomain.services).toMutableList(),
                 owners = domain.owners + latestDomain.owners,
+                entities = domain.entities + latestDomain.entities,
                 markdown = latestDomain.markdown
               )
               .apply { logger.warn(" - Domain (v$version) already exists, skipped creation...") }

@@ -14,6 +14,8 @@ import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Service
 
 interface EventCatalog {
 
+  val directory: String
+
   suspend fun getDomain(id: String, version: String = "latest"): Domain?
 
   suspend fun versionDomain(id: String)

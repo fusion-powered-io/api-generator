@@ -1,20 +1,19 @@
 package io.fusionpowered.eventcatalog.apigenerator.integration
 
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalog
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalogDirSetup
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalogDirTeardown
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.getAsyncapiExample
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.getOpenapiExample
 import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.model.DomainProperty
 import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.model.Properties
 import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.model.ServiceProperty
 import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.plugin
 import io.fusionpowered.eventcatalog.apigenerator.application.ApiGeneratorService
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalogDir
+import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalog
+import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalogDirSetup
+import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalogDirTeardown
+import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.getAsyncapiExample
+import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.getOpenapiExample
 import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Domain
 import io.fusionpowered.eventcatalog.apigenerator.model.catalog.ResourcePointer
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -105,6 +104,49 @@ class Domain : StringSpec({
     catalog.getDomain(domain.id, versionOfExistingDomain) shouldNotBe null
     catalog.getDomain(domain.id, domain.version) shouldNotBeNull {
       services shouldContainExactly listOf(ResourcePointer(service.id, versionInOpenapiFile))
+    }
+  }
+
+  "if a domain is configured and already exists, services, owners, entities and markdown are persisted" {
+    //given
+    val service = ServiceProperty(
+      id = "swagger-petstore",
+      openapiPath = getOpenapiExample("petstore.yml")
+    )
+    val versionInOpenapiFile = "1.0.0"
+    val domain = DomainProperty(
+      id = "orders",
+      name = "Orders Domain",
+      version = "1.0.0"
+    )
+    val alreadyExistingDomain = Domain(
+      id = domain.id,
+      name = domain.name,
+      summary = "This is the existing summary",
+      version = "0.0.1",
+      services = mutableListOf(ResourcePointer("otherService", "1.0.0")),
+      owners = setOf("jbrandao"),
+      entities = setOf("Entity1"),
+      markdown = "This is the existing markdown"
+    )
+    catalog.writeDomain(alreadyExistingDomain)
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service), domain),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getDomain(domain.id) shouldNotBeNull {
+      id shouldBe domain.id
+      name shouldBe domain.name
+      version shouldBe domain.version
+      summary shouldBe alreadyExistingDomain.summary
+      services shouldContainExactly alreadyExistingDomain.services + ResourcePointer(service.id, versionInOpenapiFile)
+      markdown shouldBe alreadyExistingDomain.markdown
+      owners shouldContainAll alreadyExistingDomain.owners
+      entities shouldContainAll alreadyExistingDomain.entities
     }
   }
 
@@ -221,7 +263,7 @@ class Domain : StringSpec({
     ).await()
 
     //then
-    existsSync("${catalogDir}/domain/${domain.id}/versioned") shouldBe false
+    existsSync("${catalog.directory}/domains/${domain.id}/versioned") shouldBe false
   }
 
 })

@@ -7,6 +7,7 @@ class SdkDomain(
   val version: String,
   val summary: String,
   val services: Array<SdkResourcePointer>?,
+  val entities: Array<String>?,
   val owners: Array<String>?,
   val markdown: String,
 )

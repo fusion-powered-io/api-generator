@@ -1,11 +1,11 @@
 package io.fusionpowered.eventcatalog.apigenerator.integration
 
+import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.model.DomainProperty
 import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.model.Properties
 import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.model.ServiceProperty
 import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.plugin
 import io.fusionpowered.eventcatalog.apigenerator.application.ApiGeneratorService
 import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalog
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalogDir
 import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalogDirSetup
 import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalogDirTeardown
 import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.getAsyncapiExample
@@ -25,6 +25,7 @@ import kotlinx.coroutines.await
 import node.buffer.BufferEncoding.Companion.utf8
 import node.fs.existsSync
 import node.fs.readFileSync
+import node.fs.readdirSync
 
 
 class Service : StringSpec({
@@ -74,7 +75,7 @@ class Service : StringSpec({
     catalog.getService(service.id) shouldNotBeNull {
       specifications.openapiPath shouldBe openapiSpecificationFile
     }
-    existsSync("$catalogDir/services/${service.id}/$openapiSpecificationFile") shouldBe true
+    existsSync("${catalog.directory}/services/${service.id}/$openapiSpecificationFile") shouldBe true
   }
 
   "if a service is configured with an openapi specification, its endpoints are written as `receives` messages to the service" {
@@ -156,7 +157,7 @@ class Service : StringSpec({
     catalog.getService(service.id) shouldNotBeNull {
       specifications.asyncapiPath shouldBe asyncapiSpecificationFile
     }
-    existsSync("$catalogDir/services/${service.id}/$asyncapiSpecificationFile") shouldBe true
+    existsSync("${catalog.directory}/services/${service.id}/$asyncapiSpecificationFile") shouldBe true
   }
 
   "if a service is configured with an asyncapi specification and it already exists with an openapi specification, the asyncapi specification is added to it" {
@@ -192,11 +193,11 @@ class Service : StringSpec({
       specifications shouldNotBeNull {
         openapiPath shouldBe alreadyExistingService.specifications.openapiPath
         asyncapiPath shouldBe asyncapiSpecificationFile
-        "$catalogDir/services/${service.id}/$openapiPath".let {
+        "${catalog.directory}/services/${service.id}/$openapiPath".let {
           existsSync(it) shouldBe true
           readFileSync(it, utf8) shouldBe alreadyExistingOpenapiContent
         }
-        "$catalogDir/services/${service.id}/$asyncapiPath".let {
+        "${catalog.directory}/services/${service.id}/$asyncapiPath".let {
           existsSync(it) shouldBe true
         }
       }
@@ -204,52 +205,48 @@ class Service : StringSpec({
   }
 
   "if a service is configured with an asyncapi specification and it already exists with an asyncapi specification, the existing asyncapi specification is overwritten" {
-//given
-    val asyncapiSpecificationFile = "simple.asyncapi.yml"
+    //given
+    val domain = DomainProperty(
+      id = "testdomain",
+      name = "Test Domain",
+      version = "1.0.0"
+    )
+    val oldSpec = "simple.asyncapi.yml"
+    val alreadyExistingService = ServiceProperty(
+      id = "account-service",
+      asyncapiPath = getAsyncapiExample(oldSpec)
+    )
+    val newSpec = "simple.asyncapi.new.yml"
     val service = ServiceProperty(
       id = "account-service",
-      asyncapiPath = getAsyncapiExample("simple.asyncapi.yml")
+      asyncapiPath = getAsyncapiExample(newSpec)
     )
-    val alreadyExistingService = Service(
-      id = service.id,
-      version = "1.0.0",
-      specifications = Specifications(
-        openapiPath = "simple.openapi.yml",
-        asyncapiPath = "simple.asyncapi.yml"
-      ),
-    )
-    val alreadyExistingOpenapiContent = "Some Content"
-    val alreadyExistingAsyncapiContent = "Old Content"
-    catalog.writeService(alreadyExistingService)
-    catalog.addFileToService(
-      id = alreadyExistingService.id,
-      filename = alreadyExistingService.specifications.openapiPath,
-      content = alreadyExistingOpenapiContent
-    )
-    catalog.addFileToService(
-      id = alreadyExistingService.id,
-      filename = alreadyExistingService.specifications.asyncapiPath,
-      content = alreadyExistingAsyncapiContent
-    )
+    plugin(
+      properties = Properties(arrayOf(alreadyExistingService), domain),
+      generator = ApiGeneratorService(catalog)
+    ).await()
 
     //when
     plugin(
-      properties = Properties(arrayOf(service)),
+      properties = Properties(arrayOf(service), domain),
       generator = ApiGeneratorService(catalog)
     ).await()
 
     //then
-    catalog.getService(service.id) shouldNotBeNull {
+    catalog.getService(service.id, "1.0.0") shouldNotBeNull {
       specifications shouldNotBeNull {
-        openapiPath shouldBe alreadyExistingService.specifications.openapiPath
-        asyncapiPath shouldBe asyncapiSpecificationFile
-        "$catalogDir/services/${service.id}/$openapiPath".let {
-          existsSync(it) shouldBe true
-          readFileSync(it, utf8) shouldBe alreadyExistingOpenapiContent
+        asyncapiPath shouldBe oldSpec
+        "${catalog.directory}/domains/${domain.id}/services/${service.id}/versioned/1.0.0/".let {
+          readdirSync(it, utf8).toSet() shouldContainExactly setOf("changelog.mdx", "index.mdx", oldSpec)
         }
-        "$catalogDir/services/${service.id}/$asyncapiPath".let {
-          existsSync(it) shouldBe true
-          readFileSync(it, utf8) shouldNotBe alreadyExistingAsyncapiContent
+      }
+    }
+    catalog.getService(service.id) shouldNotBeNull {
+      version shouldBe "2.0.0"
+      specifications shouldNotBeNull {
+        asyncapiPath shouldBe newSpec
+        "${catalog.directory}/domains/${domain.id}/services/${service.id}".let {
+          readdirSync(it, utf8).toSet() shouldContainExactly setOf("changelog.mdx", "index.mdx", newSpec, "versioned", "commands", "events", "queries")
         }
       }
     }
@@ -467,7 +464,7 @@ class Service : StringSpec({
     catalog.getService(service.id) shouldNotBeNull {
       specifications.openapiPath shouldBe openapiSpecificationFile
     }
-    existsSync("$catalogDir/services/${service.id}/$openapiSpecificationFile") shouldBe true
+    existsSync("${catalog.directory}/services/${service.id}/$openapiSpecificationFile") shouldBe true
   }
 
   "if a service is configured and it already exists with a different version, a new service is created and the old one is versioned" {

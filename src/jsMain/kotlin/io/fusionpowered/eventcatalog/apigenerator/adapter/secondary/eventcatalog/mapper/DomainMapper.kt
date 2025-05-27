@@ -10,8 +10,9 @@ fun SdkDomain.toDomain() =
     version = version,
     summary = summary,
     services = services?.map { it.toResourcePointer() }?.toMutableList() ?: mutableListOf(),
-    markdown = markdown,
+    entities = entities?.toSet() ?: emptySet(),
     owners = owners?.toSet() ?: emptySet(),
+    markdown = markdown,
   )
 
 fun Domain.toSdkDomain() =
@@ -22,6 +23,7 @@ fun Domain.toSdkDomain() =
     summary = summary,
     services = services
       .map { it.toSdkResourcePointer() }.toTypedArray(),
+    entities = entities.toTypedArray(),
+    owners = owners.toTypedArray(),
     markdown = markdown,
-    owners = owners.toTypedArray()
   )
