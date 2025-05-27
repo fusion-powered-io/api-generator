@@ -15,10 +15,10 @@ import kotlinx.coroutines.await
 private external val process: dynamic
 
 class EventCatalogAdapter(
-  catalogDir: String = process.env["PROJECT_DIR"].unsafeCast<String?>() ?: process.cwd().unsafeCast<String>(),
+  override val directory: String = process.env["PROJECT_DIR"].unsafeCast<String?>() ?: process.cwd().unsafeCast<String>(),
 ) : EventCatalog {
 
-  private val sdk = eventCatalogSdk(catalogDir)
+  private val sdk = eventCatalogSdk(directory)
 
   override suspend fun getDomain(id: String, version: String): Domain? {
     return sdk.getDomain(id, version).await()?.toDomain()

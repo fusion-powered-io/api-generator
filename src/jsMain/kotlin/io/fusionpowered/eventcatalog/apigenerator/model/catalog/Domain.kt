@@ -8,6 +8,7 @@ data class Domain(
   val version: String,
   val summary: String = "",
   val services: MutableList<ResourcePointer> = mutableListOf(),
+  val entities: Set<String> = emptySet(),
   val owners: Set<String> = emptySet(),
   val markdown: String = DEFAULT_MARKDOWN,
 ) {

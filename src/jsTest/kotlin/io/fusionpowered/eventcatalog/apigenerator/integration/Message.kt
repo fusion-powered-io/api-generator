@@ -5,7 +5,6 @@ import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.model.S
 import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.plugin
 import io.fusionpowered.eventcatalog.apigenerator.application.ApiGeneratorService
 import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalog
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalogDir
 import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalogDirSetup
 import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalogDirTeardown
 import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.getAsyncapiExample
@@ -210,9 +209,9 @@ class Message : StringSpec({
     ).await()
 
     //then
-    existsSync("$catalogDir/services/${service.id}/queries/showPetById") shouldBe true
-    existsSync("$catalogDir/services/${service.id}/events/petAdopted") shouldBe true
-    existsSync("$catalogDir/services/${service.id}/commands/createPets") shouldBe true
+    existsSync("${catalog.directory}/services/${service.id}/queries/showPetById") shouldBe true
+    existsSync("${catalog.directory}/services/${service.id}/events/petAdopted") shouldBe true
+    existsSync("${catalog.directory}/services/${service.id}/commands/createPets") shouldBe true
   }
 
   "messages marked as `sends` using the custom `x-eventcatalog-message-action` header in an OpenAPI are mapped against the service as messages the service sends" {
@@ -307,7 +306,7 @@ class Message : StringSpec({
     //then
     catalog.getMessage("createPets") shouldNotBeNull {
       schemaPath shouldBe "request-body.json"
-      readFileSync("$catalogDir/services/${service.id}/commands/$id/$schemaPath", utf8) shouldNotBe null
+      readFileSync("${catalog.directory}/services/${service.id}/commands/$id/$schemaPath", utf8) shouldNotBe null
     }
   }
 
@@ -349,7 +348,7 @@ class Message : StringSpec({
 
     //then
     catalog.getMessage("createPets") shouldNotBeNull {
-      readFileSync("$catalogDir/services/${service.id}/commands/$id/response-default.json", utf8) shouldNotBe null
+      readFileSync("${catalog.directory}/services/${service.id}/commands/$id/response-default.json", utf8) shouldNotBe null
     }
   }
 
@@ -413,7 +412,7 @@ class Message : StringSpec({
 
     //then
     catalog.getMessage("employees-api_GET_employees") shouldNotBeNull {
-      readFileSync("$catalogDir/services/${service.id}/queries/$id/response-200.json", utf8) shouldBe """
+      readFileSync("${catalog.directory}/services/${service.id}/queries/$id/response-200.json", utf8) shouldBe """
         {
           "type": "array",
           "items": {
@@ -447,7 +446,7 @@ class Message : StringSpec({
     ).await()
 
     //then
-    existsSync("$catalogDir/services/${service.id}/events/usersignedout") shouldBe true
+    existsSync("${catalog.directory}/services/${service.id}/events/usersignedout") shouldBe true
   }
 
   "when the `x-eventcatalog-role` is defined and set to `client` the generator does not create or modify the message documentation, but still included in the service (sends/receives)" {
@@ -522,7 +521,7 @@ class Message : StringSpec({
     //then
     catalog.getMessage("usersignedup") shouldNotBeNull {
       schemaPath shouldBe "schema.json"
-      readFileSync("$catalogDir/services/${service.id}/events/$id/schema.json", utf8) shouldNotBe null
+      readFileSync("${catalog.directory}/services/${service.id}/events/$id/schema.json", utf8) shouldNotBe null
     }
   }
 
@@ -543,7 +542,7 @@ class Message : StringSpec({
     catalog.getService(service.id) shouldNotBe null
     catalog.getMessage("usersignedup") shouldNotBeNull {
       schemaPath shouldBe "schema.avsc"
-      readFileSync("$catalogDir/services/${service.id}/events/$id/$schemaPath", utf8) shouldNotBe """
+      readFileSync("${catalog.directory}/services/${service.id}/events/$id/$schemaPath", utf8) shouldNotBe """
         {
             type: 'record',
             name: 'UserSignedUp',

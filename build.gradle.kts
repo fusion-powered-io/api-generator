@@ -13,11 +13,12 @@ val libraryName = "@fusionpowered/$name"
 kotlin {
   js {
     outputModuleName = libraryName
-    version = "1.0.1"
+    version = "1.1.0"
     nodejs {
       val main by compilations.getting {
         packageJson {
           main = "kotlin/index.js"
+          dependencies.put("@eventcatalog/sdk", "./kotlin/eventcatalog-sdk-2.5.4.tgz")
         }
       }
 
@@ -42,7 +43,6 @@ kotlin {
       implementation(libs.bundles.kotlin.wrapper)
       implementation(npm("@asyncapi/avro-schema-parser", "3.0.24"))
       implementation(npm("@asyncapi/parser", "3.3.0"))
-      implementation(npm("@eventcatalog/sdk", "2.2.7"))
       implementation(npm("@apidevtools/swagger-parser", "10.1.0"))
       implementation(npm("chalk", "4"))
       implementation(npm("slugify", "1.6.6"))
@@ -54,10 +54,14 @@ kotlin {
   }
 }
 
+tasks.named("kotlinNpmInstall") {
+  dependsOn("compileProductionExecutableKotlinJs")
+}
+
 val npmPack = tasks.register<Exec>("npmPack") {
   doFirst {
     val npm = projectDir.resolve(".gradle").toPath()
-      .let { gradlePath -> Files.find(gradlePath, 5, { path, _ -> path.fileName.endsWith("npm") }) }
+      .let { gradlePath -> Files.find(gradlePath, 5, { path, _ -> path.absolutePathString().endsWith("bin/npm") }) }
       .filter { possibleNpmPath -> possibleNpmPath.absolutePathString().contains(kotlinNodeJsEnvSpec.version.get()) }
       .findFirst().get()
       .absolutePathString()

@@ -12,20 +12,18 @@ import node.path.path
 
 object ApiGeneratorTestConfiguration {
 
-  val catalogDir = path.resolve("catalog")
-
-  val catalog: EventCatalog = EventCatalogAdapter(catalogDir)
+  val catalog: EventCatalog = EventCatalogAdapter(path.resolve("catalog"))
 
   val catalogDirSetup: BeforeTest = {
-    if (existsSync(catalogDir)) {
-      rmSync(catalogDir, unsafeJso { recursive = true })
+    if (existsSync(catalog.directory)) {
+      rmSync(catalog.directory, unsafeJso { recursive = true })
     }
-    mkdirSync(catalogDir)
+    mkdirSync(catalog.directory)
   }
 
   val catalogDirTeardown: AfterTest = {
-    if (existsSync(catalogDir)) {
-      rmSync(catalogDir, unsafeJso { recursive = true })
+    if (existsSync(catalog.directory)) {
+      rmSync(catalog.directory, unsafeJso { recursive = true })
     }
   }
 
