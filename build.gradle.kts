@@ -13,11 +13,12 @@ val libraryName = "@fusionpowered/$name"
 kotlin {
   js {
     outputModuleName = libraryName
-    version = "1.1.1"
+    version = "1.1.2"
     nodejs {
       val main by compilations.getting {
         packageJson {
-          main = "kotlin/index.js"
+          main = "kotlin/index.mjs"
+          customField("type", "module")
           dependencies.put("@eventcatalog/sdk", "./kotlin/eventcatalog-sdk-2.5.4.tgz")
           bundledDependencies.add("@eventcatalog/sdk")
         }
