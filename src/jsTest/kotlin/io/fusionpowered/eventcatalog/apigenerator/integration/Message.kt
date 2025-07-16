@@ -20,6 +20,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 import kotlinx.coroutines.await
 import node.buffer.BufferEncoding.Companion.utf8
 import node.fs.existsSync
@@ -563,5 +564,25 @@ class Message : StringSpec({
     }
   }
 
+  "if a message has markdown with curly brackets, they should be escaped" {
+    //given
+    val service = ServiceProperty(
+      id = "swagger-petstore",
+      openapiPath = getOpenapiExample("petstore.yml")
+    )
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service)),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getMessage("petAdopted") shouldNotBeNull {
+      var nonEscapedCurlyBrackets = Regex("(?<!\\\\)[{}]")
+      println(markdown)
+      markdown shouldNotContain nonEscapedCurlyBrackets
+    }
+  }
 
 })

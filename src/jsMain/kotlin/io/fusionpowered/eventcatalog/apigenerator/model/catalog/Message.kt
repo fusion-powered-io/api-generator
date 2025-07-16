@@ -70,6 +70,9 @@ data class Message(
           is OpenapiData.Message -> openapiMessageMarkdown
           is AsyncapiData.Message -> asyncapiMessageMarkdown
         }
+          .replace("{", "\\{")
+          .replace("}", "\\}")
+
 
         val externalDocumentationMarkdown = externalDocumentation
           ?.run { "## External documentation\n-[${description}](${url})\n" }
