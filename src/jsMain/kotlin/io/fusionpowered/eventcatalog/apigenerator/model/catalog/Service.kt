@@ -18,6 +18,7 @@ data class Service(
   val sends: MutableList<ResourcePointer> = mutableListOf(),
   val receives: MutableList<ResourcePointer> = mutableListOf(),
   val markdown: String = "",
+  val editUrl: String = "",
 ) {
 
   constructor(importData: ServiceImportData, serviceApiData: ApiData.Service) : this(

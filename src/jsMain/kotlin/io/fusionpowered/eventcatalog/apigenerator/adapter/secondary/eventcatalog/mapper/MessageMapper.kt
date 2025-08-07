@@ -16,7 +16,8 @@ fun SdkMessage.toMessage() =
     badges = badges?.map { it.toBadge() }?.toSet() ?: emptySet(),
     sidebar = sidebar?.toSidebar() ?: Sidebar(),
     owners = owners?.toSet() ?: emptySet(),
-    markdown = markdown
+    markdown = markdown,
+    editUrl = editUrl,
   )
 
 fun Message.toSdkMessage() =
@@ -30,7 +31,8 @@ fun Message.toSdkMessage() =
     badges = badges.map { it.toSdkBadge() }.toSet().toTypedArray(),
     sidebar = sidebar.toSdkSidebar(),
     owners = owners.toTypedArray(),
-    markdown = markdown
+    markdown = markdown,
+    editUrl = editUrl,
   )
 
 fun Message.toSdkQuery() =
@@ -43,5 +45,6 @@ fun Message.toSdkQuery() =
     badges = badges.map { it.toSdkBadge() }.toSet().toTypedArray(),
     sidebar = sidebar.toSdkSidebar(),
     owners = owners.toTypedArray(),
-    markdown = markdown
+    markdown = markdown,
+    editUrl = editUrl,
   )

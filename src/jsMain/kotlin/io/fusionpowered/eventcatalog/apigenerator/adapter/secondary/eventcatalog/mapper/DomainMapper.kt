@@ -13,6 +13,7 @@ fun SdkDomain.toDomain() =
     entities = entities?.toSet() ?: emptySet(),
     owners = owners?.toSet() ?: emptySet(),
     markdown = markdown,
+    editUrl = editUrl,
   )
 
 fun Domain.toSdkDomain() =
@@ -26,4 +27,5 @@ fun Domain.toSdkDomain() =
     entities = entities.toTypedArray(),
     owners = owners.toTypedArray(),
     markdown = markdown,
+    editUrl = editUrl,
   )

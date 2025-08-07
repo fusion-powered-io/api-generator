@@ -1,20 +1,34 @@
 package io.fusionpowered.eventcatalog.apigenerator.application
 
 import io.fusionpowered.eventcatalog.apigenerator.adapter.secondary.eventcatalog.EventCatalogAdapter
+import io.fusionpowered.eventcatalog.apigenerator.adapter.secondary.nodejs.NodejsGitRepositoryConfig
 import io.fusionpowered.eventcatalog.apigenerator.adapter.secondary.nodejs.NodejsLogger
 import io.fusionpowered.eventcatalog.apigenerator.model.api.AsyncapiData
 import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Channel
 import io.fusionpowered.eventcatalog.apigenerator.port.EventCatalog
 import io.fusionpowered.eventcatalog.apigenerator.port.Logger
+import io.fusionpowered.eventcatalog.apigenerator.port.RepositoryConfig
 
 class ChannelGeneratorService(
   private val catalog: EventCatalog = EventCatalogAdapter(),
   private val logger: Logger = NodejsLogger,
+  private val repositoryConfig: RepositoryConfig = NodejsGitRepositoryConfig,
 ) {
 
   suspend fun generate(channelApiData: AsyncapiData.Channel): Channel =
     Channel(channelApiData)
       .apply { logger.highlightedInfo("Processing channel: $name (v$version)") }
+      .let { channel ->
+        val remoteUrl = repositoryConfig.remoteUrl
+        when (remoteUrl.isNotBlank()) {
+          true -> {
+            val relativeCatalogDir = node.path.path.relative(repositoryConfig.topLevelDirectory, catalog.directory)
+            val indexFile = "channels/${channel.id}/index.mdx"
+            channel.copy(editUrl = "$remoteUrl/blob/${repositoryConfig.defaultBranch}/$relativeCatalogDir/$indexFile")
+          }
+          false -> channel
+        }
+      }
       .let { channel ->
         val latestChannel = catalog.getChannel(channel.id)
         when {

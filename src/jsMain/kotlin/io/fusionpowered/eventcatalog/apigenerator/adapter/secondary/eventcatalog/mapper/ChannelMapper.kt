@@ -16,6 +16,7 @@ fun SdkChannel.toChannel() =
     protocols = protocols?.toSet() ?: emptySet(),
     parameters = mapOf<String, SdkParameter>(parameters).mapValues { it.value.toParameter() },
     markdown = markdown,
+    editUrl = editUrl,
   )
 
 fun Channel.toSdkChannel() =
@@ -28,4 +29,5 @@ fun Channel.toSdkChannel() =
     protocols = protocols.toTypedArray(),
     parameters = parameters.mapValues { it.value.toSdkParameter() }.toRecord(),
     markdown = markdown,
+    editUrl = editUrl,
   )

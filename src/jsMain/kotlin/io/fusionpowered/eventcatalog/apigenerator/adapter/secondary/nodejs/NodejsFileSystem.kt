@@ -6,7 +6,7 @@ import node.fs.readFileSync
 
 object NodejsFileSystem : FileSystem {
 
-  override fun readFile(path: String): String? {
+  override fun readFile(path: String): String {
     return readFileSync(path, BufferEncoding.utf8)
   }
 

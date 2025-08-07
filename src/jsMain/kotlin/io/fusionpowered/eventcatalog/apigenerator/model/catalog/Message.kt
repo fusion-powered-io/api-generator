@@ -17,6 +17,7 @@ data class Message(
   val badges: Set<Badge> = emptySet(),
   val owners: Set<String> = emptySet(),
   val markdown: String = "",
+  val editUrl: String = "",
 ) {
 
   constructor(messageApiData: ApiData.Message) : this(

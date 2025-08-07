@@ -580,8 +580,26 @@ class Message : StringSpec({
     //then
     catalog.getMessage("petAdopted") shouldNotBeNull {
       var nonEscapedCurlyBrackets = Regex("(?<!\\\\)[{}]")
-      println(markdown)
       markdown shouldNotContain nonEscapedCurlyBrackets
+    }
+  }
+
+  "if catalog is in a initialized repository, then assign the message url to the editUrl" {
+    //given
+    val service = ServiceProperty(
+      id = "swagger-petstore",
+      openapiPath = getOpenapiExample("petstore.yml")
+    )
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service)),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getMessage("petAdopted") shouldNotBeNull {
+      editUrl shouldBe "https://github.com/fusion-powered-io/api-generator/blob/main/build/js/packages/@fusionpowered/api-generator-test/catalog/services/${service.id}/events/$id/index.mdx"
     }
   }
 

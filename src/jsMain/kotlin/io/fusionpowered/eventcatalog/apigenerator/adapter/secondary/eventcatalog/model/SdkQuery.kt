@@ -10,5 +10,6 @@ class SdkQuery(
   val badges: Array<SdkBadge>?,
   val sidebar: SdkSidebar?,
   val owners: Array<String>?,
-  val markdown: String
+  val markdown: String,
+  val editUrl: String
 )

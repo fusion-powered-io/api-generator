@@ -266,4 +266,29 @@ class Domain : StringSpec({
     existsSync("${catalog.directory}/domains/${domain.id}/versioned") shouldBe false
   }
 
+  "if catalog is in a initialized repository, then assign the domain url to the editUrl" {
+    //given
+    val domain = DomainProperty(
+      id = "orders",
+      name = "Orders Domain",
+      version = "1.0.0"
+    )
+    val service = ServiceProperty(
+      id = "account-service",
+      asyncapiPath = getAsyncapiExample("simple.asyncapi.yml"),
+      owners = arrayOf("John Doe", "Jane Doe")
+    )
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service), domain),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getDomain(domain.id) shouldNotBeNull {
+      editUrl shouldBe "https://github.com/fusion-powered-io/api-generator/blob/main/build/js/packages/@fusionpowered/api-generator-test/catalog/domains/$id/index.mdx"
+    }
+  }
+
 })

@@ -1,13 +1,13 @@
 package io.fusionpowered.eventcatalog.apigenerator.integration
 
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalog
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalogDirSetup
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalogDirTeardown
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.getAsyncapiExample
 import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.model.Properties
 import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.model.ServiceProperty
 import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.plugin
 import io.fusionpowered.eventcatalog.apigenerator.application.ApiGeneratorService
+import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalog
+import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalogDirSetup
+import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalogDirTeardown
+import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.getAsyncapiExample
 import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Channel
 import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Parameter
 import io.fusionpowered.eventcatalog.apigenerator.model.catalog.ResourcePointer
@@ -182,6 +182,25 @@ class Channel : StringSpec({
     //then
     catalog.getChannel("lightingMeasured", "0.0.5") shouldNotBe null
     catalog.getChannel("lightingMeasured", "1.0.0") shouldNotBe null
+  }
+
+  "if catalog is in a initialized repository, then assign the channel url to the editUrl" {
+    //given
+    val service = ServiceProperty(
+      id = "streetlights-service",
+      asyncapiPath = getAsyncapiExample("streetlights-kafka-asyncapi.yml")
+    )
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service)),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getChannel("lightsDim") shouldNotBeNull {
+      editUrl shouldBe "https://github.com/fusion-powered-io/api-generator/blob/main/build/js/packages/@fusionpowered/api-generator-test/catalog/channels/$id/index.mdx"
+    }
   }
 
 })

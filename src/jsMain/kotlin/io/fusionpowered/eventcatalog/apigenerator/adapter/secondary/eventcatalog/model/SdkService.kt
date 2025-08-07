@@ -15,4 +15,5 @@ class SdkService(
   val owners: Array<String>?,
   val repository: SdkRepository?,
   val markdown: String,
+  val editUrl: String
 )

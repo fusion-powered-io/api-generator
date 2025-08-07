@@ -612,4 +612,24 @@ class Service : StringSpec({
     }
   }
 
+  "if catalog is in a initialized repository, then assign the service url to the editUrl" {
+    //given
+    val service = ServiceProperty(
+      id = "account-service",
+      asyncapiPath = getAsyncapiExample("simple.asyncapi.yml"),
+      owners = arrayOf("John Doe", "Jane Doe")
+    )
+
+    //when
+    plugin(
+      properties = Properties(arrayOf(service)),
+      generator = ApiGeneratorService(catalog)
+    ).await()
+
+    //then
+    catalog.getService(service.id) shouldNotBeNull {
+      editUrl shouldBe "https://github.com/fusion-powered-io/api-generator/blob/main/build/js/packages/@fusionpowered/api-generator-test/catalog/services/$id/index.mdx"
+    }
+  }
+
 })

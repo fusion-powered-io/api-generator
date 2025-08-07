@@ -12,4 +12,5 @@ class SdkChannel(
   val protocols: Array<String>?,
   val parameters: Record<String, SdkParameter>?,
   val markdown: String,
+  val editUrl: String
 )

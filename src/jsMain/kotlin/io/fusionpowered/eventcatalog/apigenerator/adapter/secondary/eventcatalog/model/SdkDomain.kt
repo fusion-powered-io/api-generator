@@ -10,4 +10,5 @@ class SdkDomain(
   val entities: Array<String>?,
   val owners: Array<String>?,
   val markdown: String,
+  val editUrl: String
 )

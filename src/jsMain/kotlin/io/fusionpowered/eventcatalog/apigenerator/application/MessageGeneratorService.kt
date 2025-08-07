@@ -1,6 +1,7 @@
 package io.fusionpowered.eventcatalog.apigenerator.application
 
 import io.fusionpowered.eventcatalog.apigenerator.adapter.secondary.eventcatalog.EventCatalogAdapter
+import io.fusionpowered.eventcatalog.apigenerator.adapter.secondary.nodejs.NodejsGitRepositoryConfig
 import io.fusionpowered.eventcatalog.apigenerator.adapter.secondary.nodejs.NodejsLogger
 import io.fusionpowered.eventcatalog.apigenerator.model.api.ApiData
 import io.fusionpowered.eventcatalog.apigenerator.model.api.AsyncapiData
@@ -10,17 +11,39 @@ import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Message
 import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Service
 import io.fusionpowered.eventcatalog.apigenerator.port.EventCatalog
 import io.fusionpowered.eventcatalog.apigenerator.port.Logger
+import io.fusionpowered.eventcatalog.apigenerator.port.RepositoryConfig
 import kotlin.js.Date
 
 class MessageGeneratorService(
   private val catalog: EventCatalog = EventCatalogAdapter(),
-  private val logger: Logger = NodejsLogger
+  private val logger: Logger = NodejsLogger,
+  private val repositoryConfig: RepositoryConfig = NodejsGitRepositoryConfig,
 ) {
 
   suspend fun generate(domain: Domain?, service: Service, messageApiData: ApiData.Message): Message =
     Message(messageApiData)
       .apply { logger.highlightedInfo("Processing message: $name (v$version)") }
       .let { message -> message.copy(owners = message.owners + service.owners) }
+      .let { message ->
+        val remoteUrl = repositoryConfig.remoteUrl
+        when (remoteUrl.isNotBlank()) {
+          true -> {
+            val relativeCatalogDir = node.path.path.relative(repositoryConfig.topLevelDirectory, catalog.directory)
+            val messageDir = when (messageApiData.type) {
+              ApiData.Message.Type.Event -> "events"
+              ApiData.Message.Type.Query -> "queries"
+              ApiData.Message.Type.Command -> "commands"
+            }
+            val indexFile = when {
+              domain == null -> "services/${service.id}/$messageDir/${message.id}/index.mdx"
+              else -> "domains/${domain.id}/services/${service.id}/$messageDir/index.mdx"
+            }
+            message.copy(editUrl = "$remoteUrl/blob/${repositoryConfig.defaultBranch}/$relativeCatalogDir/$indexFile")
+          }
+
+          false -> message
+        }
+      }
       .let { message ->
         val latestMessage = catalog.getMessage(message.id)
         when {
@@ -111,7 +134,7 @@ class MessageGeneratorService(
             }
         }
       }
-  
+
       is AsyncapiData.Message -> {
         messageData.payload
           ?.run {

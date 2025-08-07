@@ -11,6 +11,7 @@ data class Domain(
   val entities: Set<String> = emptySet(),
   val owners: Set<String> = emptySet(),
   val markdown: String = DEFAULT_MARKDOWN,
+  val editUrl: String = "",
 ) {
 
   companion object {

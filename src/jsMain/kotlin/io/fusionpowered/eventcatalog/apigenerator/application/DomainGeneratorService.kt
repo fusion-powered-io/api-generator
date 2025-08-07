@@ -1,20 +1,34 @@
 package io.fusionpowered.eventcatalog.apigenerator.application
 
 import io.fusionpowered.eventcatalog.apigenerator.adapter.secondary.eventcatalog.EventCatalogAdapter
+import io.fusionpowered.eventcatalog.apigenerator.adapter.secondary.nodejs.NodejsGitRepositoryConfig
 import io.fusionpowered.eventcatalog.apigenerator.adapter.secondary.nodejs.NodejsLogger
 import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Domain
 import io.fusionpowered.eventcatalog.apigenerator.model.import.DomainImportData
 import io.fusionpowered.eventcatalog.apigenerator.port.EventCatalog
 import io.fusionpowered.eventcatalog.apigenerator.port.Logger
+import io.fusionpowered.eventcatalog.apigenerator.port.RepositoryConfig
 
 class DomainGeneratorService(
   private val catalog: EventCatalog = EventCatalogAdapter(),
   private val logger: Logger = NodejsLogger,
+  private val repositoryConfig: RepositoryConfig = NodejsGitRepositoryConfig,
 ) {
 
   suspend fun generate(domainImportData: DomainImportData): Domain =
     Domain(domainImportData)
       .apply { logger.highlightedInfo("\nProcessing domain: $name (v$version)") }
+      .let { domain ->
+        val remoteUrl = repositoryConfig.remoteUrl
+        when (remoteUrl.isNotBlank()) {
+          true -> {
+            val relativeCatalogDir = node.path.path.relative(repositoryConfig.topLevelDirectory, catalog.directory)
+            val indexFile = "domains/${domain.id}/index.mdx"
+            domain.copy(editUrl = "$remoteUrl/blob/${repositoryConfig.defaultBranch}/$relativeCatalogDir/$indexFile")
+          }
+          false -> domain
+        }
+      }
       .let { domain ->
         val latestDomain = catalog.getDomain(domain.id)
         when {

@@ -11,6 +11,7 @@ data class Channel(
   val protocols: Set<String> = emptySet(),
   val parameters: Map<String, Parameter> = emptyMap(),
   val markdown: String = "",
+  val editUrl: String = "",
 ) {
 
   constructor(channelData: AsyncapiData.Channel) : this(

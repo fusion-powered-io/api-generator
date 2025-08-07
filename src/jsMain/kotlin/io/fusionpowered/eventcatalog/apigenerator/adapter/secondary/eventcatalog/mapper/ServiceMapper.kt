@@ -21,6 +21,7 @@ fun SdkService.toService() =
     sends = sends?.map { it.toResourcePointer() }?.toMutableList() ?: mutableListOf(),
     receives = receives?.map { it.toResourcePointer() }?.toMutableList() ?: mutableListOf(),
     specifications = specifications.unsafeCast<SdkSpecifications?>()?.toSpecifications() ?: Specifications(),
+    editUrl = editUrl,
   )
 
 fun Service.toSdkService() =
@@ -36,6 +37,7 @@ fun Service.toSdkService() =
     repository = repository.toSdkRepository(),
     sends = sends.map { it.toSdkResourcePointer() }.toTypedArray(),
     receives = receives.map { it.toSdkResourcePointer() }.toTypedArray(),
-    specifications = specifications.toSdkSpecifications().asDynamicWithNoEmptyProperties()
+    specifications = specifications.toSdkSpecifications().asDynamicWithNoEmptyProperties(),
+    editUrl = editUrl,
   )
 

@@ -3,6 +3,7 @@ package io.fusionpowered.eventcatalog.apigenerator.application
 import io.fusionpowered.eventcatalog.apigenerator.adapter.secondary.eventcatalog.EventCatalogAdapter
 import io.fusionpowered.eventcatalog.apigenerator.adapter.secondary.nodejs.NodejsFileDownloader
 import io.fusionpowered.eventcatalog.apigenerator.adapter.secondary.nodejs.NodejsFileSystem
+import io.fusionpowered.eventcatalog.apigenerator.adapter.secondary.nodejs.NodejsGitRepositoryConfig
 import io.fusionpowered.eventcatalog.apigenerator.adapter.secondary.nodejs.NodejsLogger
 import io.fusionpowered.eventcatalog.apigenerator.model.api.ApiData
 import io.fusionpowered.eventcatalog.apigenerator.model.api.AsyncapiData
@@ -15,11 +16,13 @@ import io.fusionpowered.eventcatalog.apigenerator.port.EventCatalog
 import io.fusionpowered.eventcatalog.apigenerator.port.FileDownloader
 import io.fusionpowered.eventcatalog.apigenerator.port.FileSystem
 import io.fusionpowered.eventcatalog.apigenerator.port.Logger
+import io.fusionpowered.eventcatalog.apigenerator.port.RepositoryConfig
 import kotlin.js.Date
 
 class ServiceGeneratorService(
   private val catalog: EventCatalog = EventCatalogAdapter(),
   private val logger: Logger = NodejsLogger,
+  private val repositoryConfig: RepositoryConfig = NodejsGitRepositoryConfig,
   private val fileSystem: FileSystem = NodejsFileSystem,
   private val fileDownloader: FileDownloader = NodejsFileDownloader
 ) {
@@ -27,6 +30,20 @@ class ServiceGeneratorService(
   suspend fun generate(domain: Domain?, serviceImportData: ServiceImportData, serviceApiData: ApiData.Service): Service =
     Service(serviceImportData, serviceApiData)
       .apply { logger.highlightedInfo("Processing service: $name (v$version)") }
+      .let { service ->
+        val remoteUrl = repositoryConfig.remoteUrl
+        when (remoteUrl.isNotBlank()) {
+          true ->{
+            val relativeCatalogDir = node.path.path.relative(repositoryConfig.topLevelDirectory, catalog.directory)
+            val indexFile = when(domain) {
+              null -> "services/${service.id}/index.mdx"
+              else -> "domains/${domain.id}/services/${service.id}/index.mdx"
+            }
+            service.copy(editUrl = "$remoteUrl/blob/${repositoryConfig.defaultBranch}/$relativeCatalogDir/$indexFile")
+          }
+          false -> service
+        }
+      }
       .let { service ->
         val latestService = catalog.getService(service.id)
         when {
@@ -63,7 +80,6 @@ class ServiceGeneratorService(
                 addChangelog()
                 logger.info(" - Service (v$version) created")
               }
-
 
           else ->
             service
