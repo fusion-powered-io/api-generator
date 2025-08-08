@@ -23,8 +23,8 @@ object NodejsGitRepositoryConfig : RepositoryConfig {
         "git remote -v",
         unsafeJso<ExecSyncOptionsWithStringEncoding> { stringEncoding = BufferEncoding.utf8 }
       )
-
         .split(" ", "\t")[1]
+        .replace("git@github.com:", "https://github.com/")
         .replace(".git", "")
 
       false -> ""
