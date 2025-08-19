@@ -6,6 +6,7 @@ plugins {
   alias(libs.plugins.kotlinMultiplatform)
   alias(libs.plugins.kotlinxSerialization)
   alias(libs.plugins.kotest)
+  alias(libs.plugins.ksp)
 }
 
 val libraryName = "@fusionpowered/$name"

@@ -1,10 +1,11 @@
 [versions]
-kotlin = "2.1.20"
+kotlin = "2.2.0"
 kotlinx-coroutines = "1.10.1"
 kotlinx-serialization-json = "1.8.1"
 kotlin-nodejs = "2025.4.16-22.13.10"
 kotlin-web = "2025.4.16"
-kotest = "6.0.0.M3"
+kotest = "6.0.0.M17"
+ksp = "2.2.0-2.0.2"
 
 [libraries]
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
@@ -22,4 +23,5 @@ kotest = ["kotest-framework-engine", "kotest-assertions-core"]
 [plugins]
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-kotest = { id = "io.kotest.multiplatform", version.ref = "kotest" }
+kotest = { id = "io.kotest", version.ref = "kotest" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
