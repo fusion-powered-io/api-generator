@@ -4,7 +4,7 @@ kotlinx-coroutines = "1.10.1"
 kotlinx-serialization-json = "1.8.1"
 kotlin-nodejs = "2025.4.16-22.13.10"
 kotlin-web = "2025.4.16"
-kotest = "6.0.0.M17"
+kotest = "6.0.3"
 ksp = "2.2.0-2.0.2"
 
 [libraries]

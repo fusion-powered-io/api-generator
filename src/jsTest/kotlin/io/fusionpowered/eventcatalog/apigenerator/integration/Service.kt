@@ -5,16 +5,11 @@ import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.model.P
 import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.model.ServiceProperty
 import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.plugin
 import io.fusionpowered.eventcatalog.apigenerator.application.ApiGeneratorService
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalog
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalogDirSetup
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalogDirTeardown
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.getAsyncapiExample
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.getOpenapiExample
-import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Badge
-import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Repository
-import io.fusionpowered.eventcatalog.apigenerator.model.catalog.ResourcePointer
+import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfig.Companion.getAsyncapiExample
+import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfig.Companion.getOpenapiExample
+import io.fusionpowered.eventcatalog.apigenerator.extensions.CatalogExtension.catalog
+import io.fusionpowered.eventcatalog.apigenerator.model.catalog.*
 import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Service
-import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Specifications
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactly
@@ -29,10 +24,6 @@ import node.fs.readdirSync
 
 
 class Service : StringSpec({
-
-  beforeEach(catalogDirSetup)
-
-  afterEach(catalogDirTeardown)
 
   "if a service is configured and it does not exist, it is created" {
     //given
@@ -279,7 +270,7 @@ class Service : StringSpec({
       sends shouldContainExactly setOf(
         ResourcePointer("usersignedup", "1.0.0"),
         ResourcePointer("usersignedout", "1.0.0"),
-        )
+      )
     }
   }
 
@@ -400,7 +391,7 @@ class Service : StringSpec({
         ResourcePointer("getuserbyemail", "1.0.0"),
         ResourcePointer("checkemailavailability", "1.0.0"),
         ResourcePointer("usersubscribed", "1.0.0")
-        )
+      )
     }
   }
 

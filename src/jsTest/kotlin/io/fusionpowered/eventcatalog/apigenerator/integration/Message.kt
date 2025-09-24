@@ -4,11 +4,9 @@ import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.model.P
 import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.model.ServiceProperty
 import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.plugin
 import io.fusionpowered.eventcatalog.apigenerator.application.ApiGeneratorService
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalog
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalogDirSetup
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalogDirTeardown
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.getAsyncapiExample
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.getOpenapiExample
+import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfig.Companion.getAsyncapiExample
+import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfig.Companion.getOpenapiExample
+import io.fusionpowered.eventcatalog.apigenerator.extensions.CatalogExtension.catalog
 import io.fusionpowered.eventcatalog.apigenerator.model.api.ApiData.Message.Type.Command
 import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Badge
 import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Message
@@ -27,10 +25,6 @@ import node.fs.existsSync
 import node.fs.readFileSync
 
 class Message : StringSpec({
-
-  beforeEach(catalogDirSetup)
-
-  afterEach(catalogDirTeardown)
 
   "if a message is defined in an openapi specification without `x-eventcatalog-message-type`, it is added to the service as a query" {
     //given

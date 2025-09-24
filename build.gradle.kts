@@ -42,7 +42,6 @@ kotlin {
   }
 
   sourceSets {
-
     jsMain.dependencies {
       implementation(libs.bundles.kotlinx)
       implementation(libs.bundles.kotlin.wrapper)

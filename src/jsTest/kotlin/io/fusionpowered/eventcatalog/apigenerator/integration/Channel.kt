@@ -4,10 +4,8 @@ import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.model.P
 import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.model.ServiceProperty
 import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.plugin
 import io.fusionpowered.eventcatalog.apigenerator.application.ApiGeneratorService
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalog
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalogDirSetup
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalogDirTeardown
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.getAsyncapiExample
+import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfig.Companion.getAsyncapiExample
+import io.fusionpowered.eventcatalog.apigenerator.extensions.CatalogExtension.catalog
 import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Channel
 import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Parameter
 import io.fusionpowered.eventcatalog.apigenerator.model.catalog.ResourcePointer
@@ -22,11 +20,7 @@ import kotlinx.coroutines.await
 
 class Channel : StringSpec({
 
-  beforeEach(catalogDirSetup)
-
-  afterEach(catalogDirTeardown)
-
-  "if a channel is defined in an asyncapi specification, it is created" {
+  "if a channel is defined in  asyncapi specification, it is created" {
     //given
     val service = ServiceProperty(
       id = "streetlights-service",

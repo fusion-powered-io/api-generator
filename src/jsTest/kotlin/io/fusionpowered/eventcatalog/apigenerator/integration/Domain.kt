@@ -5,11 +5,9 @@ import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.model.P
 import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.model.ServiceProperty
 import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.plugin
 import io.fusionpowered.eventcatalog.apigenerator.application.ApiGeneratorService
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalog
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalogDirSetup
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.catalogDirTeardown
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.getAsyncapiExample
-import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfiguration.getOpenapiExample
+import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfig.Companion.getAsyncapiExample
+import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfig.Companion.getOpenapiExample
+import io.fusionpowered.eventcatalog.apigenerator.extensions.CatalogExtension.catalog
 import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Domain
 import io.fusionpowered.eventcatalog.apigenerator.model.catalog.ResourcePointer
 import io.kotest.core.spec.style.StringSpec
@@ -22,10 +20,6 @@ import kotlinx.coroutines.await
 import node.fs.existsSync
 
 class Domain : StringSpec({
-
-  beforeEach(catalogDirSetup)
-
-  afterEach(catalogDirTeardown)
 
   "if a domain is not configured, the defined service is not added to any domains" {
     //given
