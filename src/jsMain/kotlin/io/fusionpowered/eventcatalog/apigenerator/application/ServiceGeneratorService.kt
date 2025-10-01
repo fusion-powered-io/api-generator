@@ -39,7 +39,10 @@ class ServiceGeneratorService(
               null -> "services/${service.id}/index.mdx"
               else -> "domains/${domain.id}/services/${service.id}/index.mdx"
             }
-            service.copy(editUrl = "$remoteUrl/blob/${repositoryConfig.defaultBranch}/$relativeCatalogDir/$indexFile")
+            service.copy(
+              repository = service.repository.copy(url = remoteUrl),
+              editUrl = "$remoteUrl/blob/${repositoryConfig.defaultBranch}/$relativeCatalogDir/$indexFile"
+            )
           }
           false -> service
         }

@@ -603,7 +603,7 @@ class Service : StringSpec({
     }
   }
 
-  "if catalog is in a initialized repository, then assign the service url to the editUrl" {
+  "if catalog is in a initialized repository, then assign service's editUrl and repository url" {
     //given
     val service = ServiceProperty(
       id = "account-service",
@@ -620,6 +620,7 @@ class Service : StringSpec({
     //then
     catalog.getService(service.id) shouldNotBeNull {
       editUrl shouldBe "https://github.com/fusion-powered-io/api-generator/blob/main/build/js/packages/@fusionpowered/api-generator-test/catalog/services/$id/index.mdx"
+      repository.url shouldBe "https://github.com/fusion-powered-io/api-generator"
     }
   }
 
