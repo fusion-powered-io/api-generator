@@ -20,7 +20,7 @@ import kotlinx.coroutines.await
 
 class Channel : StringSpec({
 
-  "if a channel is defined in  asyncapi specification, it is created" {
+  "if a channel is defined in asyncapi specification, it is created" {
     //given
     val service = ServiceProperty(
       id = "streetlights-service",

@@ -12,7 +12,6 @@ import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Service
 import io.fusionpowered.eventcatalog.apigenerator.port.EventCatalog
 import io.fusionpowered.eventcatalog.apigenerator.port.Logger
 import io.fusionpowered.eventcatalog.apigenerator.port.RepositoryConfig
-import kotlin.js.Date
 
 class MessageGeneratorService(
   private val catalog: EventCatalog = EventCatalogAdapter(),
@@ -58,7 +57,6 @@ class MessageGeneratorService(
                 domain = domain
               )
               addSchemas(messageApiData)
-              addChangelog(messageApiData)
               logger.info(" - Message (v$version) created")
             }
 
@@ -81,7 +79,6 @@ class MessageGeneratorService(
                   domain = domain
                 )
                 addSchemas(messageApiData)
-                addChangelog(messageApiData)
                 logger.info(" - Message (v$version) created")
               }
 
@@ -148,15 +145,6 @@ class MessageGeneratorService(
       }
     }
 
-  }
-
-  private suspend fun Message.addChangelog(messageData: ApiData.Message) {
-    catalog.addFileToMessage(
-      id = id,
-      messageData = messageData,
-      filename = "changelog.mdx",
-      content = "---\ncreatedAt: ${Date().toISOString().split('T')[0]}\n---\n"
-    )
   }
 
 }
