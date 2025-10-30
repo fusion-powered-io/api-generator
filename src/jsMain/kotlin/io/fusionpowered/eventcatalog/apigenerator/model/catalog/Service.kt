@@ -21,19 +21,33 @@ data class Service(
   val editUrl: String = "",
 ) {
 
-  constructor(importData: ServiceImportData, serviceApiData: ApiData.Service) : this(
+  constructor(
+    importData: ServiceImportData,
+    openapiServiceApiData: OpenapiData.Service? = null,
+    asyncapiServiceData: AsyncapiData.Service? = null
+  ) : this(
     id = importData.id,
-    name = serviceApiData.name,
-    summary = serviceApiData.description.truncate(150),
-    version = serviceApiData.version,
-    badges = serviceApiData.tags.map { it.toBadge() }.toSet(),
+    name = (openapiServiceApiData ?: asyncapiServiceData!!).name,
+    summary = (openapiServiceApiData ?: asyncapiServiceData!!).description.truncate(150),
+    version = when {
+      openapiServiceApiData != null && asyncapiServiceData != null -> "${openapiServiceApiData.version}-${asyncapiServiceData.version}"
+      openapiServiceApiData != null -> openapiServiceApiData.version
+      asyncapiServiceData != null -> asyncapiServiceData.version
+      else -> throw IllegalStateException("No service data available!")
+    },
+    badges = when {
+      openapiServiceApiData != null && asyncapiServiceData != null -> (openapiServiceApiData.tags + asyncapiServiceData.tags).map { it.toBadge() }.toSet()
+      openapiServiceApiData != null -> openapiServiceApiData.tags.map { it.toBadge() }.toSet()
+      asyncapiServiceData != null -> asyncapiServiceData.tags.map { it.toBadge() }.toSet()
+      else -> throw IllegalStateException("No service data available!")
+    },
     owners = importData.owners,
-    schemaPath = serviceApiData.schemaPath,
-    markdown = serviceApiData.defaultMarkdown,
-    specifications = when (serviceApiData) {
-      is OpenapiData.Service -> Specifications(openapiPath = serviceApiData.schemaPath)
-      is AsyncapiData.Service -> Specifications(asyncapiPath = serviceApiData.schemaPath)
-    }
+    schemaPath = (openapiServiceApiData ?: asyncapiServiceData!!).schemaPath,
+    markdown = (openapiServiceApiData ?: asyncapiServiceData!!).defaultMarkdown,
+    specifications = Specifications(
+      openapiPath = openapiServiceApiData?.schemaPath ?: "",
+      asyncapiPath = asyncapiServiceData?.schemaPath ?: "",
+    )
   )
 
   companion object {

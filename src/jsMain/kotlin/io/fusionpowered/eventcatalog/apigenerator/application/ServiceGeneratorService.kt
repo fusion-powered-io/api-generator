@@ -5,18 +5,13 @@ import io.fusionpowered.eventcatalog.apigenerator.adapter.secondary.nodejs.Nodej
 import io.fusionpowered.eventcatalog.apigenerator.adapter.secondary.nodejs.NodejsFileSystem
 import io.fusionpowered.eventcatalog.apigenerator.adapter.secondary.nodejs.NodejsGitRepositoryConfig
 import io.fusionpowered.eventcatalog.apigenerator.adapter.secondary.nodejs.NodejsLogger
-import io.fusionpowered.eventcatalog.apigenerator.model.api.ApiData
 import io.fusionpowered.eventcatalog.apigenerator.model.api.AsyncapiData
 import io.fusionpowered.eventcatalog.apigenerator.model.api.OpenapiData
 import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Domain
 import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Service
 import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Specifications
 import io.fusionpowered.eventcatalog.apigenerator.model.import.ServiceImportData
-import io.fusionpowered.eventcatalog.apigenerator.port.EventCatalog
-import io.fusionpowered.eventcatalog.apigenerator.port.FileDownloader
-import io.fusionpowered.eventcatalog.apigenerator.port.FileSystem
-import io.fusionpowered.eventcatalog.apigenerator.port.Logger
-import io.fusionpowered.eventcatalog.apigenerator.port.RepositoryConfig
+import io.fusionpowered.eventcatalog.apigenerator.port.*
 import kotlin.js.Date
 
 class ServiceGeneratorService(
@@ -27,15 +22,23 @@ class ServiceGeneratorService(
   private val fileDownloader: FileDownloader = NodejsFileDownloader
 ) {
 
-  suspend fun generate(domain: Domain?, serviceImportData: ServiceImportData, serviceApiData: ApiData.Service): Service =
-    Service(serviceImportData, serviceApiData)
+  suspend fun generate(
+    domain: Domain?,
+    serviceImportData: ServiceImportData,
+    openapiServiceData: OpenapiData.Service? = null,
+    asyncapiServiceData: AsyncapiData.Service? = null
+  ): Service {
+    if (openapiServiceData != null && asyncapiServiceData != null) {
+      throw IllegalStateException("We cannot generate a service with no serviceData.")
+    }
+    return Service(serviceImportData, openapiServiceData, asyncapiServiceData)
       .apply { logger.highlightedInfo("Processing service: $name (v$version)") }
       .let { service ->
         val remoteUrl = repositoryConfig.remoteUrl
         when (remoteUrl.isNotBlank()) {
-          true ->{
+          true -> {
             val relativeCatalogDir = node.path.path.relative(repositoryConfig.topLevelDirectory, catalog.directory)
-            val indexFile = when(domain) {
+            val indexFile = when (domain) {
               null -> "services/${service.id}/index.mdx"
               else -> "domains/${domain.id}/services/${service.id}/index.mdx"
             }
@@ -44,6 +47,7 @@ class ServiceGeneratorService(
               editUrl = "$remoteUrl/blob/${repositoryConfig.defaultBranch}/$relativeCatalogDir/$indexFile"
             )
           }
+
           false -> service
         }
       }
@@ -63,10 +67,7 @@ class ServiceGeneratorService(
             service
               .copy(
                 badges = service.badges + latestService.badges,
-                sends =  when(serviceApiData) {
-                  is OpenapiData.Service -> (service.sends + latestService.sends).toMutableList()
-                  is AsyncapiData.Service -> service.sends
-                },
+                sends = (service.sends + latestService.sends).toMutableList(),
                 specifications = Specifications(
                   openapiPath = service.specifications.openapiPath.ifBlank { latestService.specifications.openapiPath },
                   asyncapiPath = service.specifications.asyncapiPath.ifBlank { latestService.specifications.asyncapiPath }
@@ -88,10 +89,7 @@ class ServiceGeneratorService(
             service
               .copy(
                 badges = service.badges + latestService.badges,
-                sends = when(serviceApiData) {
-                  is OpenapiData.Service -> (service.sends + latestService.sends).toMutableList()
-                  is AsyncapiData.Service -> service.sends
-                },
+                sends = (service.sends + latestService.sends).toMutableList(),
                 specifications = Specifications(
                   openapiPath = service.specifications.openapiPath.ifBlank { latestService.specifications.openapiPath },
                   asyncapiPath = service.specifications.asyncapiPath.ifBlank { latestService.specifications.asyncapiPath }
@@ -108,6 +106,7 @@ class ServiceGeneratorService(
               }
         }
       }
+  }
 
   private suspend fun Service.addSpecificationFiles(serviceImportData: ServiceImportData) {
     serviceImportData.openapiPath

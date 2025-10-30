@@ -243,7 +243,7 @@ class Service : StringSpec({
     }
   }
 
-  "if a service is configured with an asyncapi specification and it already exists with `sends` messages, they are overwritten." {
+  "if a service is configured with an asyncapi specification and it already exists with `sends` messages, they are persisted." {
     //given
     val service = ServiceProperty(
       id = "account-service",
@@ -254,7 +254,7 @@ class Service : StringSpec({
         id = service.id,
         version = "1.0.0",
         sends = mutableListOf(
-          ResourcePointer("messageToBeOverwritten", "1.0.0")
+          ResourcePointer("messageToBePersisted", "1.0.0")
         )
       )
     )
@@ -268,6 +268,7 @@ class Service : StringSpec({
     //then
     catalog.getService(service.id) shouldNotBeNull {
       sends shouldContainExactly setOf(
+        ResourcePointer("messageToBePersisted", "1.0.0"),
         ResourcePointer("usersignedup", "1.0.0"),
         ResourcePointer("usersignedout", "1.0.0"),
       )

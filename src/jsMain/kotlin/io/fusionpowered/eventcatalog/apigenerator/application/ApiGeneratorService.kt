@@ -27,17 +27,22 @@ class ApiGeneratorService(
     servicesImportData.forEach { serviceImportData ->
       when {
         serviceImportData.openapiPath != null && serviceImportData.asyncapiPath != null -> {
-          //Not yet implemented
+          val openapiData =  openapiDocumentReader.read(serviceImportData.openapiPath)
+          val asyncapiData =  asyncapiDocumentReader.read(serviceImportData.asyncapiPath)
+          val service = serviceGenerator.generate(domain, serviceImportData, openapiData.service, asyncapiData.service)
+          openapiData.messages.forEach { messageGenerator.generate(domain, service, it) }
+          asyncapiData.channels.forEach { channelGenerator.generate(it) }
+          asyncapiData.messages.forEach { messageGenerator.generate(domain, service, it) }
         }
 
         serviceImportData.openapiPath != null && serviceImportData.asyncapiPath == null ->
           openapiDocumentReader.read(serviceImportData.openapiPath)
-            .let { openapiData -> openapiData to serviceGenerator.generate(domain, serviceImportData, openapiData.service) }
+            .let { openapiData -> openapiData to serviceGenerator.generate(domain, serviceImportData, openapiServiceData = openapiData.service) }
             .let { (openapiData, service) -> openapiData.messages.forEach { messageGenerator.generate(domain, service, it) } }
 
         serviceImportData.openapiPath == null && serviceImportData.asyncapiPath != null ->
           asyncapiDocumentReader.read(serviceImportData.asyncapiPath)
-            .let { asyncapiData -> asyncapiData to serviceGenerator.generate(domain, serviceImportData, asyncapiData.service) }
+            .let { asyncapiData -> asyncapiData to serviceGenerator.generate(domain, serviceImportData, asyncapiServiceData = asyncapiData.service) }
             .let { (asyncapiData, service) ->
               asyncapiData.channels.forEach { channelGenerator.generate(it) }
               asyncapiData.messages.forEach { messageGenerator.generate(domain, service, it) }
