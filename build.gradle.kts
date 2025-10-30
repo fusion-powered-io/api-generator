@@ -14,7 +14,7 @@ val libraryName = "@fusionpowered/$name"
 kotlin {
   js {
     outputModuleName = libraryName
-    version = "2.1.0"
+    version = "2.1.1"
     nodejs {
       @Suppress("unused")
       val main by compilations.getting {

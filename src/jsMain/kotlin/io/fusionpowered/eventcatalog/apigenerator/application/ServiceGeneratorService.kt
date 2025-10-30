@@ -28,7 +28,7 @@ class ServiceGeneratorService(
     openapiServiceData: OpenapiData.Service? = null,
     asyncapiServiceData: AsyncapiData.Service? = null
   ): Service {
-    if (openapiServiceData != null && asyncapiServiceData != null) {
+    if (openapiServiceData == null && asyncapiServiceData == null) {
       throw IllegalStateException("We cannot generate a service with no serviceData.")
     }
     return Service(serviceImportData, openapiServiceData, asyncapiServiceData)
