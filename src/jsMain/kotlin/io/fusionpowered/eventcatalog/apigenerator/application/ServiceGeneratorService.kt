@@ -114,7 +114,7 @@ class ServiceGeneratorService(
       ?.let {
         catalog.addFileToService(
           id = id,
-          filename = schemaPath,
+          filename = specifications.openapiPath,
           content = it
         )
       }
@@ -124,7 +124,7 @@ class ServiceGeneratorService(
       ?.let {
         catalog.addFileToService(
           id = id,
-          filename = schemaPath,
+          filename = specifications.asyncapiPath,
           content = it
         )
       }
