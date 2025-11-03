@@ -30,7 +30,7 @@ data class Service(
     name = (openapiServiceApiData ?: asyncapiServiceData!!).name,
     summary = (openapiServiceApiData ?: asyncapiServiceData!!).description.truncate(150),
     version = when {
-      openapiServiceApiData != null && asyncapiServiceData != null -> "${openapiServiceApiData.version}-${asyncapiServiceData.version}"
+      openapiServiceApiData != null && asyncapiServiceData != null -> openapiServiceApiData.version
       openapiServiceApiData != null -> openapiServiceApiData.version
       asyncapiServiceData != null -> asyncapiServiceData.version
       else -> throw IllegalStateException("No service data available!")
