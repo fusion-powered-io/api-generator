@@ -16,7 +16,9 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.await
+import kotlinx.coroutines.promise
 import node.buffer.BufferEncoding.Companion.utf8
 import node.fs.existsSync
 import node.fs.readFileSync
@@ -33,10 +35,12 @@ class Service : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getService(service.id) shouldNotBeNull {
@@ -57,10 +61,12 @@ class Service : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getService(service.id) shouldNotBeNull {
@@ -77,10 +83,12 @@ class Service : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getService(service.id) shouldNotBeNull {
@@ -112,10 +120,12 @@ class Service : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getService(service.id) shouldNotBeNull {
@@ -139,10 +149,12 @@ class Service : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getService(service.id) shouldNotBeNull {
@@ -174,10 +186,12 @@ class Service : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getService(service.id) shouldNotBeNull {
@@ -212,16 +226,20 @@ class Service : StringSpec({
       id = "account-service",
       asyncapiPath = getAsyncapiExample(newSpec)
     )
-    plugin(
-      properties = Properties(arrayOf(alreadyExistingService), domain),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(alreadyExistingService), domain),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service), domain),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service), domain),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getService(service.id, "1.0.0") shouldNotBeNull {
@@ -260,10 +278,12 @@ class Service : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getService(service.id) shouldNotBeNull {
@@ -292,10 +312,12 @@ class Service : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getService(service.id) shouldNotBeNull {
@@ -316,10 +338,12 @@ class Service : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getService(service.id) shouldNotBeNull {
@@ -337,10 +361,12 @@ class Service : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getService(service.id) shouldNotBeNull {
@@ -358,10 +384,12 @@ class Service : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getService(service.id) shouldNotBeNull {
@@ -380,10 +408,12 @@ class Service : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getService(service.id) shouldNotBeNull {
@@ -405,10 +435,12 @@ class Service : StringSpec({
     val refMessageInAsyncapiFile = "usersignup"
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getService(service.id) shouldNotBe null
@@ -425,10 +457,12 @@ class Service : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getService(service.id) shouldNotBeNull {
@@ -447,10 +481,12 @@ class Service : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getService(service.id) shouldNotBeNull {
@@ -475,10 +511,12 @@ class Service : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getService(service.id, versionOfExistingService) shouldNotBe null
@@ -501,10 +539,12 @@ class Service : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getService(service.id) shouldNotBeNull {
@@ -537,10 +577,12 @@ class Service : StringSpec({
     catalog.writeService(alreadyExistingService)
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getService(service.id) shouldNotBeNull {
@@ -570,10 +612,12 @@ class Service : StringSpec({
     catalog.writeService(alreadyExistingService)
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getService(service.id) shouldNotBeNull {
@@ -593,10 +637,12 @@ class Service : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getService(service.id) shouldNotBeNull {
@@ -613,10 +659,12 @@ class Service : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getService(service.id) shouldNotBeNull {

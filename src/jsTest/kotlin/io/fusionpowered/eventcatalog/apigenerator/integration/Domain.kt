@@ -16,8 +16,11 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.await
+import kotlinx.coroutines.promise
 import node.fs.existsSync
+
 
 class Domain : StringSpec({
 
@@ -30,10 +33,12 @@ class Domain : StringSpec({
     val undefinedDomainId = "orders"
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getDomain(undefinedDomainId) shouldBe null
@@ -53,10 +58,12 @@ class Domain : StringSpec({
     val versionInOpenapiFile = "1.0.0"
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service), domain),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service), domain),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getDomain(domain.id) shouldNotBeNull {
@@ -89,10 +96,12 @@ class Domain : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service), domain),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service), domain),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getDomain(domain.id, versionOfExistingDomain) shouldNotBe null
@@ -126,10 +135,12 @@ class Domain : StringSpec({
     catalog.writeDomain(alreadyExistingDomain)
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service), domain),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service), domain),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getDomain(domain.id) shouldNotBeNull {
@@ -165,10 +176,12 @@ class Domain : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service), domain),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service), domain),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getDomain(domain.id) shouldNotBeNull {
@@ -186,10 +199,12 @@ class Domain : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(emptyArray(), domain),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(emptyArray(), domain),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getDomain(domain.id) shouldNotBeNull {
@@ -217,10 +232,12 @@ class Domain : StringSpec({
     val versionInAsyncapiFile = "1.0.0"
 
     //when
-    plugin(
-      properties = Properties(arrayOf(openapiService, asyncapiService), domain),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(openapiService, asyncapiService), domain),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getDomain(domain.id) shouldNotBeNull {
@@ -251,10 +268,12 @@ class Domain : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service), domain),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service), domain),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     existsSync("${catalog.directory}/domains/${domain.id}/versioned") shouldBe false
@@ -274,10 +293,12 @@ class Domain : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service), domain),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service), domain),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getDomain(domain.id) shouldNotBeNull {
@@ -286,3 +307,4 @@ class Domain : StringSpec({
   }
 
 })
+

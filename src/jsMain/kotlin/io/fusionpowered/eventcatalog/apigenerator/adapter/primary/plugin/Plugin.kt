@@ -5,20 +5,15 @@ import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.mapper.
 import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.mapper.toServiceImportData
 import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.model.Properties
 import io.fusionpowered.eventcatalog.apigenerator.application.ApiGeneratorService
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.promise
-import kotlin.js.Promise
 
-@Suppress("NON_EXPORTABLE_TYPE")
-@JsExport
-fun plugin(
-  properties: Properties,
+@JsExport.Default
+suspend fun plugin(
+  @Suppress("UNUSED_PARAMETER") eventCatalogConfig: dynamic = null,
+  pluginConfig: Properties,
   generator: ApiGenerator = ApiGeneratorService()
-): Promise<Unit> {
-  return GlobalScope.promise {
+) {
     generator.generate(
-      properties.services.map { it.toServiceImportData() }.toSet(),
-      properties.domain?.toDomainImportData()
+      pluginConfig.services.map { it.toServiceImportData() }.toSet(),
+      pluginConfig.domain?.toDomainImportData()
     )
-  }
 }

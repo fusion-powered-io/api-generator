@@ -6,7 +6,6 @@ import io.fusionpowered.eventcatalog.apigenerator.adapter.primary.plugin.plugin
 import io.fusionpowered.eventcatalog.apigenerator.application.ApiGeneratorService
 import io.fusionpowered.eventcatalog.apigenerator.configuration.ApiGeneratorTestConfig.Companion.getAsyncapiExample
 import io.fusionpowered.eventcatalog.apigenerator.extensions.CatalogExtension.catalog
-import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Channel
 import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Parameter
 import io.fusionpowered.eventcatalog.apigenerator.model.catalog.ResourcePointer
 import io.kotest.core.spec.style.StringSpec
@@ -16,7 +15,9 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.await
+import kotlinx.coroutines.promise
 
 class Channel : StringSpec({
 
@@ -30,10 +31,12 @@ class Channel : StringSpec({
     var channelsInAsyncapiFile = listOf("lightingMeasured", "lightTurnOn", "lightTurnOff", "lightsDim")
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     channelsInAsyncapiFile.forEach { channel ->
@@ -62,6 +65,7 @@ class Channel : StringSpec({
     }
   }
 
+
   "if a channel has no address, parameters, title or description, it is still written to the catalog" {
     //given
     val service = ServiceProperty(
@@ -71,10 +75,12 @@ class Channel : StringSpec({
     val versionInAsyncapiFileInVersionExtension = "2.0.0"
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getChannel("lightsDim") shouldNotBeNull {
@@ -97,10 +103,12 @@ class Channel : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getMessage("lightmeasured") shouldNotBeNull {
@@ -117,10 +125,12 @@ class Channel : StringSpec({
     val versionInAsyncapiFileInVersionExtension = "2.0.0"
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getChannel("lightsDim") shouldNotBeNull {
@@ -134,7 +144,7 @@ class Channel : StringSpec({
       id = "streetlights-service",
       asyncapiPath = getAsyncapiExample("streetlights-kafka-asyncapi.yml")
     )
-    val channel = Channel(
+    val channel = io.fusionpowered.eventcatalog.apigenerator.model.catalog.Channel(
       id = "lightingMeasured",
       name = "Lighting Measured Channel",
       version = "1.0.0",
@@ -143,10 +153,12 @@ class Channel : StringSpec({
     catalog.writeChannel(channel)
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getChannel("lightingMeasured") shouldNotBeNull {
@@ -160,7 +172,7 @@ class Channel : StringSpec({
       id = "streetlights-service",
       asyncapiPath = getAsyncapiExample("streetlights-kafka-asyncapi.yml")
     )
-    val channel = Channel(
+    val channel = io.fusionpowered.eventcatalog.apigenerator.model.catalog.Channel(
       id = "lightingMeasured",
       name = "Lighting Measured Channel",
       version = "0.0.5"
@@ -168,10 +180,12 @@ class Channel : StringSpec({
     catalog.writeChannel(channel)
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getChannel("lightingMeasured", "0.0.5") shouldNotBe null
@@ -186,10 +200,12 @@ class Channel : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getChannel("lightsDim") shouldNotBeNull {

@@ -19,10 +19,13 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.await
+import kotlinx.coroutines.promise
 import node.buffer.BufferEncoding.Companion.utf8
 import node.fs.existsSync
 import node.fs.readFileSync
+
 
 class Message : StringSpec({
 
@@ -34,10 +37,12 @@ class Message : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getMessage("list-pets") shouldNotBeNull {
@@ -73,10 +78,12 @@ class Message : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getMessage(alreadyExistingMessage.id, alreadyExistingMessage.version) shouldNotBe null
@@ -105,10 +112,12 @@ class Message : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getMessage(alreadyExistingMessage.id) shouldNotBeNull {
@@ -124,10 +133,12 @@ class Message : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getMessage("product-api_GET_{productId}") shouldNotBe null
@@ -143,10 +154,12 @@ class Message : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getMessage("product-api_GET_{productId}") shouldNotBeNull {
@@ -179,10 +192,12 @@ class Message : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getMessage(alreadyExistingMessage.id) shouldNotBeNull {
@@ -198,10 +213,12 @@ class Message : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     existsSync("${catalog.directory}/services/${service.id}/queries/showPetById") shouldBe true
@@ -217,10 +234,12 @@ class Message : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getService(service.id) shouldNotBeNull {
@@ -236,10 +255,12 @@ class Message : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getMessage("list-pets") shouldNotBeNull {
@@ -255,10 +276,12 @@ class Message : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getMessage("list-pets") shouldNotBeNull {
@@ -274,10 +297,12 @@ class Message : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getMessage("list-pets") shouldNotBeNull {
@@ -293,10 +318,12 @@ class Message : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getMessage("createPets") shouldNotBeNull {
@@ -312,10 +339,12 @@ class Message : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getMessage("createPets") shouldNotBeNull {
@@ -336,10 +365,12 @@ class Message : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getMessage("createPets") shouldNotBeNull {
@@ -354,10 +385,12 @@ class Message : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getMessage("createPets") shouldNotBeNull {
@@ -379,10 +412,12 @@ class Message : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getMessage("list-pets") shouldNotBeNull {
@@ -400,10 +435,12 @@ class Message : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getMessage("employees-api_GET_employees") shouldNotBeNull {
@@ -435,10 +472,12 @@ class Message : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     existsSync("${catalog.directory}/services/${service.id}/events/usersignedout") shouldBe true
@@ -452,10 +491,12 @@ class Message : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getMessage("usersubscribed") shouldBe null
@@ -477,10 +518,12 @@ class Message : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getMessage("messageprojectdeleted") shouldNotBeNull {
@@ -508,10 +551,12 @@ class Message : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getMessage("usersignedup") shouldNotBeNull {
@@ -528,10 +573,12 @@ class Message : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getService(service.id) shouldNotBe null
@@ -566,10 +613,12 @@ class Message : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getMessage("petAdopted") shouldNotBeNull {
@@ -586,10 +635,12 @@ class Message : StringSpec({
     )
 
     //when
-    plugin(
-      properties = Properties(arrayOf(service)),
-      generator = ApiGeneratorService(catalog)
-    ).await()
+    GlobalScope.promise {
+      plugin(
+        pluginConfig = Properties(arrayOf(service)),
+        generator = ApiGeneratorService(catalog)
+      )
+    }.await()
 
     //then
     catalog.getMessage("petAdopted") shouldNotBeNull {

@@ -14,14 +14,14 @@ val libraryName = "@fusionpowered/$name"
 kotlin {
   js {
     outputModuleName = libraryName
-    version = "2.1.3"
+    version = "2.1.4"
     nodejs {
       @Suppress("unused")
       val main by compilations.getting {
         packageJson {
-          main = "kotlin/index.mjs"
+          main = "kotlin/@fusionpowered/api-generator.mjs"
           customField("type", "module")
-          dependencies["@eventcatalog/sdk"] = "./kotlin/eventcatalog-sdk-2.7.1.tgz"
+          dependencies["@eventcatalog/sdk"] = "./kotlin/eventcatalog-sdk-2.9.2.tgz"
           bundledDependencies.add("@eventcatalog/sdk")
         }
       }
@@ -32,8 +32,10 @@ kotlin {
     }
     compilerOptions {
       target = "es2015"
+      freeCompilerArgs.add("-XXLanguage:+JsAllowExportingSuspendFunctions")
       optIn.addAll(
         "kotlin.js.ExperimentalJsExport",
+        "kotlin.js.ExperimentalWasmJsInterop",
         "kotlin.js.ExperimentalJsCollectionsApi",
         "kotlinx.coroutines.DelicateCoroutinesApi"
       )
