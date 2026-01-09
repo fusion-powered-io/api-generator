@@ -1,3 +1,4 @@
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin.Companion.kotlinNodeJsEnvSpec
 import java.nio.file.Files
 import kotlin.io.path.absolutePathString
@@ -14,13 +15,14 @@ val libraryName = "@fusionpowered/$name"
 kotlin {
   js {
     outputModuleName = libraryName
-    version = "2.1.4"
+    version = "2.1.5"
     nodejs {
       @Suppress("unused")
       val main by compilations.getting {
         packageJson {
           main = "kotlin/@fusionpowered/api-generator.mjs"
           customField("type", "module")
+          customField("repository", "https://github.com/fusion-powered-io/api-generator")
           dependencies["@eventcatalog/sdk"] = "./kotlin/eventcatalog-sdk-2.9.2.tgz"
           bundledDependencies.add("@eventcatalog/sdk")
         }
@@ -66,12 +68,20 @@ tasks.named("kotlinNpmInstall") {
 
 val npmPack = tasks.register<Exec>("npmPack") {
   doFirst {
+    if (Os.isFamily(Os.FAMILY_MAC)) {
+      val node = projectDir.resolve(".gradle").toPath()
+        .let { gradlePath -> Files.find(gradlePath, 5, { path, _ -> path.absolutePathString().endsWith("bin") }) }
+        .filter { possibleNpmPath -> possibleNpmPath.absolutePathString().contains(kotlinNodeJsEnvSpec.version.get()) }
+        .findFirst().get()
+        .absolutePathString()
+      environment["PATH"] = node
+    }
+
     val npm = projectDir.resolve(".gradle").toPath()
       .let { gradlePath -> Files.find(gradlePath, 5, { path, _ -> path.absolutePathString().endsWith("bin/npm") }) }
       .filter { possibleNpmPath -> possibleNpmPath.absolutePathString().contains(kotlinNodeJsEnvSpec.version.get()) }
       .findFirst().get()
       .absolutePathString()
-
     workingDir = projectDir.resolve("build/js/packages/$libraryName")
     commandLine = listOf(npm, "pack", "--pack-destination=${projectDir.resolve("build")}")
   }

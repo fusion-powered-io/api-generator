@@ -11,6 +11,10 @@ on:
         required: false
         default: ''
 
+permissions:
+  id-token: write  # Required for OIDC
+  contents: read
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -28,7 +32,9 @@ jobs:
         with:
           node-version: '22.x'
           registry-url: 'https://registry.npmjs.org'
-          
+
+      - run: npm install -g npm@latest
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
         
@@ -43,5 +49,3 @@ jobs:
         
       - name: Publish to NPM
         run: npm publish ./${{ steps.find-package.outputs.package_path }} --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
