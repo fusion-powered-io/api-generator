@@ -14,7 +14,7 @@ val libraryName = "@fusionpowered/$name"
 kotlin {
   js {
     outputModuleName = libraryName
-    version = "2.1.4"
+    version = "2.1.5"
     nodejs {
       @Suppress("unused")
       val main by compilations.getting {
@@ -66,6 +66,11 @@ tasks.named("kotlinNpmInstall") {
 
 val npmPack = tasks.register<Exec>("npmPack") {
   doFirst {
+    val node = projectDir.resolve(".gradle").toPath()
+      .let { gradlePath -> Files.find(gradlePath, 5, { path, _ -> path.absolutePathString().endsWith("bin") }) }
+      .filter { possibleNpmPath -> possibleNpmPath.absolutePathString().contains(kotlinNodeJsEnvSpec.version.get()) }
+      .findFirst().get()
+      .absolutePathString()
     val npm = projectDir.resolve(".gradle").toPath()
       .let { gradlePath -> Files.find(gradlePath, 5, { path, _ -> path.absolutePathString().endsWith("bin/npm") }) }
       .filter { possibleNpmPath -> possibleNpmPath.absolutePathString().contains(kotlinNodeJsEnvSpec.version.get()) }
@@ -73,6 +78,7 @@ val npmPack = tasks.register<Exec>("npmPack") {
       .absolutePathString()
 
     workingDir = projectDir.resolve("build/js/packages/$libraryName")
+    environment["PATH"] = node
     commandLine = listOf(npm, "pack", "--pack-destination=${projectDir.resolve("build")}")
   }
 }

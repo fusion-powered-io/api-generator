@@ -83,8 +83,18 @@ class EventCatalogAdapter(
     domain: Domain?
   ) {
     when (direction) {
-      ApiData.Message.Direction.Sends -> service.sends.add(ResourcePointer(message.id, message.version))
-      ApiData.Message.Direction.Receives -> service.receives.add(ResourcePointer(message.id, message.version))
+      ApiData.Message.Direction.Sends -> {
+        val messageResource = ResourcePointer(message.id, message.version)
+        if(!service.sends.contains(messageResource)) {
+          service.sends.add(messageResource)
+        }
+      }
+      ApiData.Message.Direction.Receives -> {
+        val messageResource = ResourcePointer(message.id, message.version)
+        if(!service.receives.contains(messageResource)) {
+          service.receives.add(messageResource)
+        }
+      }
     }
     writeService(service, domain)
     if (role == Provided) {
