@@ -93,12 +93,12 @@ class Service : StringSpec({
     //then
     catalog.getService(service.id) shouldNotBeNull {
       receives shouldContainExactly setOf(
-        ResourcePointer("list-pets", "5.0.0"),
-        ResourcePointer("createPets", "1.0.0"),
-        ResourcePointer("showPetById", "1.0.0"),
-        ResourcePointer("updatePet", "1.0.0"),
-        ResourcePointer("deletePet", "1.0.0"),
-        ResourcePointer("petAdopted", "1.0.0"),
+        ReceivesPointer("list-pets", "5.0.0"),
+        ReceivesPointer("createPets", "1.0.0"),
+        ReceivesPointer("showPetById", "1.0.0"),
+        ReceivesPointer("updatePet", "1.0.0"),
+        ReceivesPointer("deletePet", "1.0.0"),
+        ReceivesPointer("petAdopted", "1.0.0"),
       )
     }
   }
@@ -114,7 +114,7 @@ class Service : StringSpec({
         id = service.id,
         version = "1.0.0",
         receives = mutableListOf(
-          ResourcePointer("messageToBeOverwritten", "1.0.0")
+          ReceivesPointer("messageToBeOverwritten", "1.0.0")
         )
       )
     )
@@ -130,12 +130,12 @@ class Service : StringSpec({
     //then
     catalog.getService(service.id) shouldNotBeNull {
       receives shouldContainExactly setOf(
-        ResourcePointer("list-pets", "5.0.0"),
-        ResourcePointer("createPets", "1.0.0"),
-        ResourcePointer("showPetById", "1.0.0"),
-        ResourcePointer("updatePet", "1.0.0"),
-        ResourcePointer("deletePet", "1.0.0"),
-        ResourcePointer("petAdopted", "1.0.0"),
+        ReceivesPointer("list-pets", "5.0.0"),
+        ReceivesPointer("createPets", "1.0.0"),
+        ReceivesPointer("showPetById", "1.0.0"),
+        ReceivesPointer("updatePet", "1.0.0"),
+        ReceivesPointer("deletePet", "1.0.0"),
+        ReceivesPointer("petAdopted", "1.0.0"),
       )
     }
   }
@@ -272,7 +272,7 @@ class Service : StringSpec({
         id = service.id,
         version = "1.0.0",
         sends = mutableListOf(
-          ResourcePointer("messageToBePersisted", "1.0.0")
+          SendsPointer("messageToBePersisted", "1.0.0", mutableListOf(ResourcePointer("userSignedup", "1.0.0")))
         )
       )
     )
@@ -288,9 +288,9 @@ class Service : StringSpec({
     //then
     catalog.getService(service.id) shouldNotBeNull {
       sends shouldContainExactly setOf(
-        ResourcePointer("messageToBePersisted", "1.0.0"),
-        ResourcePointer("usersignedup", "1.0.0"),
-        ResourcePointer("usersignedout", "1.0.0"),
+        SendsPointer("messageToBePersisted", "1.0.0", mutableListOf(ResourcePointer(id="userSignedup", version="1.0.0"))),
+        SendsPointer("usersignedup", "1.0.0", mutableListOf(ResourcePointer(id="userSignedup", version="1.0.0"))),
+        SendsPointer("usersignedout", "1.0.0", mutableListOf(ResourcePointer(id="userSignedup", version="1.0.0"))),
       )
     }
   }
@@ -306,7 +306,7 @@ class Service : StringSpec({
         id = service.id,
         version = "1.0.0",
         receives = mutableListOf(
-          ResourcePointer("messageToBeOverwritten", "1.0.0")
+          ReceivesPointer("messageToBeOverwritten", "1.0.0", mutableListOf(ResourcePointer("userSignedup", "1.0.0")))
         )
       )
     )
@@ -322,10 +322,10 @@ class Service : StringSpec({
     //then
     catalog.getService(service.id) shouldNotBeNull {
       receives shouldContainExactly setOf(
-        ResourcePointer("signupuser", "2.0.0"),
-        ResourcePointer("getuserbyemail", "1.0.0"),
-        ResourcePointer("checkemailavailability", "1.0.0"),
-        ResourcePointer("usersubscribed", "1.0.0")
+        ReceivesPointer("signupuser", "2.0.0", mutableListOf(ResourcePointer("userSignedup", "1.0.0"))),
+        ReceivesPointer("getuserbyemail", "1.0.0", mutableListOf(ResourcePointer("userSignedup", "1.0.0"))),
+        ReceivesPointer("checkemailavailability", "1.0.0", mutableListOf(ResourcePointer("userSignedup", "1.0.0"))),
+        ReceivesPointer("usersubscribed", "1.0.0", mutableListOf(ResourcePointer("userSubscription", "1.0.0")))
       )
     }
   }
@@ -348,7 +348,7 @@ class Service : StringSpec({
     //then
     catalog.getService(service.id) shouldNotBeNull {
       sends shouldContainExactly setOf(
-        ResourcePointer("somecoolpublishedmessage", "1.0.0")
+        SendsPointer("somecoolpublishedmessage", "1.0.0", mutableListOf(ResourcePointer("chat", "1.0.0")))
       )
     }
   }
@@ -371,7 +371,7 @@ class Service : StringSpec({
     //then
     catalog.getService(service.id) shouldNotBeNull {
       receives shouldContainExactly setOf(
-        ResourcePointer("somecoolreceivedmessage", "1.0.0")
+        ReceivesPointer("somecoolreceivedmessage", "1.0.0", mutableListOf(ResourcePointer("chat", "1.0.0")))
       )
     }
   }
@@ -394,8 +394,8 @@ class Service : StringSpec({
     //then
     catalog.getService(service.id) shouldNotBeNull {
       sends shouldContainExactly setOf(
-        ResourcePointer("usersignedup", "1.0.0"),
-        ResourcePointer("usersignedout", "1.0.0"),
+        SendsPointer("usersignedup", "1.0.0", mutableListOf(ResourcePointer("userSignedup", "1.0.0"))),
+        SendsPointer("usersignedout", "1.0.0", mutableListOf(ResourcePointer("userSignedup", "1.0.0"))),
       )
     }
   }
@@ -418,10 +418,10 @@ class Service : StringSpec({
     //then
     catalog.getService(service.id) shouldNotBeNull {
       receives shouldContainExactly setOf(
-        ResourcePointer("signupuser", "2.0.0"),
-        ResourcePointer("getuserbyemail", "1.0.0"),
-        ResourcePointer("checkemailavailability", "1.0.0"),
-        ResourcePointer("usersubscribed", "1.0.0")
+        ReceivesPointer("signupuser", "2.0.0", mutableListOf(ResourcePointer("userSignedup", "1.0.0"))),
+        ReceivesPointer("getuserbyemail", "1.0.0", mutableListOf(ResourcePointer("userSignedup", "1.0.0"))),
+        ReceivesPointer("checkemailavailability", "1.0.0", mutableListOf(ResourcePointer("userSignedup", "1.0.0"))),
+        ReceivesPointer("usersubscribed", "1.0.0", mutableListOf(ResourcePointer("userSubscription", "1.0.0")))
       )
     }
   }
@@ -607,7 +607,7 @@ class Service : StringSpec({
       id = service.id,
       name = "Swagger Petstore",
       version = "1.0.0",
-      sends = mutableListOf(ResourcePointer("usersignedup", "1.0.0")),
+      sends = mutableListOf(SendsPointer("usersignedup", "1.0.0")),
     )
     catalog.writeService(alreadyExistingService)
 
@@ -622,8 +622,8 @@ class Service : StringSpec({
     //then
     catalog.getService(service.id) shouldNotBeNull {
       sends shouldContainExactly setOf(
-        ResourcePointer("usersignedup", "1.0.0"),
-        ResourcePointer("petVaccinated", "1.0.0"),
+        SendsPointer("usersignedup", "1.0.0"),
+        SendsPointer("petVaccinated", "1.0.0"),
       )
     }
   }

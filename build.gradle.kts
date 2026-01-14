@@ -15,7 +15,7 @@ val libraryName = "@fusionpowered/$name"
 kotlin {
   js {
     outputModuleName = libraryName
-    version = "2.1.5"
+    version = "3.0.0"
     nodejs {
       @Suppress("unused")
       val main by compilations.getting {
@@ -23,7 +23,7 @@ kotlin {
           main = "kotlin/@fusionpowered/api-generator.mjs"
           customField("type", "module")
           customField("repository", "https://github.com/fusion-powered-io/api-generator")
-          dependencies["@eventcatalog/sdk"] = "./kotlin/eventcatalog-sdk-2.9.2.tgz"
+          dependencies["@eventcatalog/sdk"] = "./kotlin/eventcatalog-sdk-2.10.0.tgz"
           bundledDependencies.add("@eventcatalog/sdk")
         }
       }

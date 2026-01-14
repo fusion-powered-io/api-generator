@@ -7,7 +7,6 @@ class SdkMessage(
   val version: String,
   val summary: String,
   val schemaPath: String,
-  val channels: Array<SdkResourcePointer>?,
   val badges: Array<SdkBadge>?,
   val sidebar: SdkSidebar?,
   val owners: Array<String>?,

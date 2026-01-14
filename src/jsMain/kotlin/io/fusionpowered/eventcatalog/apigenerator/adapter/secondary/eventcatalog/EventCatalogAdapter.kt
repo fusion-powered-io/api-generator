@@ -84,14 +84,23 @@ class EventCatalogAdapter(
   ) {
     when (direction) {
       ApiData.Message.Direction.Sends -> {
-        val messageResource = ResourcePointer(message.id, message.version)
-        if(!service.sends.contains(messageResource)) {
+        val messageResource = SendsPointer(
+          id = message.id,
+          version = message.version,
+          to = message.channels.toMutableList()
+        )
+        if (!service.sends.contains(messageResource)) {
           service.sends.add(messageResource)
         }
       }
+
       ApiData.Message.Direction.Receives -> {
-        val messageResource = ResourcePointer(message.id, message.version)
-        if(!service.receives.contains(messageResource)) {
+        val messageResource = ReceivesPointer(
+          id = message.id,
+          version = message.version,
+          from = message.channels.toMutableList()
+        )
+        if (!service.receives.contains(messageResource)) {
           service.receives.add(messageResource)
         }
       }

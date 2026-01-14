@@ -15,8 +15,8 @@ data class Service(
   val owners: Set<String> = emptySet(),
   val specifications: Specifications = Specifications(),
   val repository: Repository = Repository(),
-  val sends: MutableList<ResourcePointer> = mutableListOf(),
-  val receives: MutableList<ResourcePointer> = mutableListOf(),
+  val sends: MutableList<SendsPointer> = mutableListOf(),
+  val receives: MutableList<ReceivesPointer> = mutableListOf(),
   val markdown: String = "",
   val editUrl: String = "",
 ) {

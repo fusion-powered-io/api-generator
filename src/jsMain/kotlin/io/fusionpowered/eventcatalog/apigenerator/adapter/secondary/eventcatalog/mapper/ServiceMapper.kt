@@ -18,8 +18,8 @@ fun SdkService.toService() =
     owners = owners?.toSet() ?: emptySet(),
     markdown = markdown,
     repository = repository?.toRepository() ?: Repository(),
-    sends = sends?.map { it.toResourcePointer() }?.toMutableList() ?: mutableListOf(),
-    receives = receives?.map { it.toResourcePointer() }?.toMutableList() ?: mutableListOf(),
+    sends = sends?.map { it.toSendsPointer() }?.toMutableList() ?: mutableListOf(),
+    receives = receives?.map { it.toReceivesPointer() }?.toMutableList() ?: mutableListOf(),
     specifications = specifications.unsafeCast<SdkSpecifications?>()?.toSpecifications() ?: Specifications(),
     editUrl = editUrl,
   )
@@ -35,8 +35,8 @@ fun Service.toSdkService() =
     owners = owners.toTypedArray(),
     markdown = markdown,
     repository = repository.toSdkRepository(),
-    sends = sends.map { it.toSdkResourcePointer() }.toTypedArray(),
-    receives = receives.map { it.toSdkResourcePointer() }.toTypedArray(),
+    sends = sends.map { it.toSdkSendsPointer() }.toTypedArray(),
+    receives = receives.map { it.toSdkReceivesPointer() }.toTypedArray(),
     specifications = specifications.toSdkSpecifications().asDynamicWithNoEmptyProperties(),
     editUrl = editUrl,
   )

@@ -95,7 +95,7 @@ class Channel : StringSpec({
     }
   }
 
-  "if a channel has messages, it appears referenced by the messages" {
+  "if a channel has messages, it appears referenced by the messages in the service" {
     //given
     val service = ServiceProperty(
       id = "streetlights-service",
@@ -111,8 +111,8 @@ class Channel : StringSpec({
     }.await()
 
     //then
-    catalog.getMessage("lightmeasured") shouldNotBeNull {
-      channels shouldContain ResourcePointer("lightingMeasured", "1.0.0")
+    catalog.getService("streetlights-service") shouldNotBeNull {
+      receives.first { it.id == "lightmeasured" }.from shouldContain ResourcePointer("lightingMeasured", "1.0.0")
     }
   }
 

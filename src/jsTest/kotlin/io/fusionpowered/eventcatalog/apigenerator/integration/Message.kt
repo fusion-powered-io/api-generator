@@ -10,7 +10,9 @@ import io.fusionpowered.eventcatalog.apigenerator.extensions.CatalogExtension.ca
 import io.fusionpowered.eventcatalog.apigenerator.model.api.ApiData.Message.Type.Command
 import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Badge
 import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Message
+import io.fusionpowered.eventcatalog.apigenerator.model.catalog.ReceivesPointer
 import io.fusionpowered.eventcatalog.apigenerator.model.catalog.ResourcePointer
+import io.fusionpowered.eventcatalog.apigenerator.model.catalog.SendsPointer
 import io.fusionpowered.eventcatalog.apigenerator.model.catalog.Service
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainExactly
@@ -243,7 +245,7 @@ class Message : StringSpec({
 
     //then
     catalog.getService(service.id) shouldNotBeNull {
-      sends shouldContainExactly listOf(ResourcePointer("petVaccinated", "1.0.0"))
+      sends shouldContainExactly listOf(SendsPointer("petVaccinated", "1.0.0"))
     }
   }
 
@@ -502,10 +504,10 @@ class Message : StringSpec({
     catalog.getMessage("usersubscribed") shouldBe null
     catalog.getService(service.id) shouldNotBeNull {
       receives shouldContainExactly listOf(
-        ResourcePointer("signupuser", "2.0.0"),
-        ResourcePointer("getuserbyemail", "1.0.0"),
-        ResourcePointer("checkemailavailability", "1.0.0"),
-        ResourcePointer("usersubscribed", "1.0.0")
+        ReceivesPointer("signupuser", "2.0.0", mutableListOf(ResourcePointer("userSignedup", "1.0.0"))),
+        ReceivesPointer("getuserbyemail", "1.0.0", mutableListOf(ResourcePointer("userSignedup", "1.0.0"))),
+        ReceivesPointer("checkemailavailability", "1.0.0", mutableListOf(ResourcePointer("userSignedup", "1.0.0"))),
+        ReceivesPointer("usersubscribed", "1.0.0", mutableListOf(ResourcePointer("userSubscription", "1.0.0")))
       )
     }
   }
